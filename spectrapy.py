@@ -29,7 +29,7 @@ def makeMatricies(nf):
 
 def readLaF3params(nf):
     pd = pandas.read_excel('carnall89params.xls',skiprows=2).set_index('param')
-    RareEarths =['La','Ce', 'Pr','Nd', 'Pm', 'Sm', 'E', 'Gd', 'Tb', 'Dy', 'Ho',
+    RareEarths =['La','Ce', 'Pr','Nd', 'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho',
        'Er', 'Tm', 'Yb']
     p = {}
     re = RareEarths[nf]
@@ -396,6 +396,7 @@ def read_crosswhite(nf):
                 
         while(True):
             line = f.readline()
+            print(line)
             if line==[]:
                 break
             if len(line.strip())==0:
@@ -404,6 +405,7 @@ def read_crosswhite(nf):
             #always separated by free space
             (jnum,i,j,pnum) = map(int,line[0:24].split()[0:4])
             line = line[24:].split()
+            print(line)
             mat_element = float(line[0])
             param = line[1]
             if not(fi_mat.has_key(param)):

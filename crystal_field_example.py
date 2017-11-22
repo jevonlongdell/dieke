@@ -4,13 +4,13 @@ import spectrapy
 
 
 #nf = input('Enter number of f electrons: ')
-nf=12
+nf=2
 
 
 (LSterms,Uk,LSJlevels,freeion_mat,LSJmJstates,full_freeion_mat,Ckq) = spectrapy.makeMatricies(nf)
 #LSterms     - list of LSterm labels
 #Uk          - Uk in terms of these terms
-#LSJleves    - list of LSJ levels
+#LSJlevels    - list of LSJ levels
 #freeion_mat - dictionary of free ion matricies in terms of those levels
 #LSJmJstates - list of LSJmJ states
 #full_freeion_mat - the free ion matricies again but now in terms of LSJmJ
