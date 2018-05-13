@@ -2,13 +2,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 import spectrapy
 
+## Example of free ion calculation using spectrapy
+##
+## This makes Figure 3.1 in Mike Reids notes:
+## which shows the energy levesl of Pr3+ as the strength
+## of the spin orbit interaction is increased from zero to
+## about 150% of it's actual value.
+##
+## http://www2.phys.canterbury.ac.nz/~mfr24/electronicstructure/00electronic.pdf
 
-#nf = input('Enter number of f electrons: ')
-nf=2
-cfparams = spectrapy.readLaF3params(nf)
+
+nf=2 # the number of f electrions
+
+#this reads in the crystal field parameters for 
+#cfparams = spectrapy.readLaF3params(nf)
+
 (LSJlevels,fi_mat,LSterms,Uk,V)= spectrapy.read_crosswhite(nf)
 
-#make figure 3.1 in mikes notes
 
 cfparams = spectrapy.readLaF3params(nf)
 zeta0 = cfparams['ZETA']
@@ -19,8 +29,8 @@ nrglevels = np.zeros([len(zetavals),numLSJ])
 
 H0 = np.zeros([numLSJ,numLSJ])
 for k in cfparams.keys():
-    if fi_mat.has_key(k):
-        print "using parameter ",k
+    if k in fi_mat:
+        print("using parameter ",k)
         H0 = H0+cfparams[k]*fi_mat[k]
 (evals,evects) = np.linalg.eig(H0)
 E0 = np.min(evals)
@@ -31,7 +41,7 @@ for zeta in zetavals:
     cfparams2['ZETA']=zeta
     H = np.zeros([numLSJ,numLSJ])
     for k in cfparams2.keys():
-        if fi_mat.has_key(k):
+        if k in fi_mat:
             H = H+cfparams2[k]*fi_mat[k]
     (evals,evects) = np.linalg.eig(H)
     nrglevels[l,:]=np.sort(evals)-E0

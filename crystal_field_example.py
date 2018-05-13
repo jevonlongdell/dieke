@@ -29,14 +29,14 @@ cfstrvals =  np.linspace(0,1.5,15)
 
 H0 = np.zeros([numLSJmJ,numLSJmJ])
 for k in cfparams.keys():
-    if full_freeion_mat.has_key(k):
+    if k in full_freeion_mat:
         print("Adding free ion parameter %s\n"%(k))
         H0 = H0+cfparams[k]*full_freeion_mat[k]
 
 H=H0
 for k in [2,4,6]:
     for q in range(0,k+1):
-        if cfparams.has_key('B%d%d'%(k,q)):
+        if 'B%d%d'%(k,q) in cfparams:
             if q==0:
                 H = H+cfparams['B%d%d'%(k,q)]*Ckq[(k,q)]
             else:
@@ -59,7 +59,7 @@ for cfstr in cfstrvals:
     H = H0
     for k in [2,4,6]:
         for q in range(0,k+1):
-            if cfparams.has_key('B%d%d'%(k,q)):
+            if 'B%d%d'%(k,q) in cfparams:
                 #print("adding in B %d %d"%(k,q))
                 if q==0:
                     H = H+cfstr*cfparams['B%d%d'%(k,q)]*Ckq[(k,q)]
@@ -75,8 +75,8 @@ plt.axis([0,max(cfstrvals),-2000,25000])
 plt.plot(cfstrvals,nrglevels,'x-',[1,1],[-10000,+50000])
 plt.draw()
 
-for k in range(10):
-    print calc_nrg_levels[k]
+for k in range(20):
+    print(calc_nrg_levels[k])
 
 
     

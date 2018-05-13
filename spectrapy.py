@@ -36,10 +36,10 @@ def readLaF3params(nf):
     for k in pd[re].keys():
         if not np.isnan(pd[re][k]):
             p[k]=pd[re][k]
-    if p.has_key('M0'):
+    if 'M0' in p:
         p['M2']=0.56*p['M0']
         p['M4']=0.31*p['M0']
-    if p.has_key('P2'):
+    if 'P2' in p:
         p['P4']=0.5*p['P2']
         p['P6']=0.1*p['P2']
     return p
@@ -148,7 +148,7 @@ class WignerDict:
         self.wdict = {}
 
     def w3j(self,twicej1,twicej2,twicej3,twicem1,twicem2,twicem3):
-        if self.wdict.has_key((twicej1,twicej2,twicej3,twicem1,twicem2,twicem3)):
+        if  (twicej1,twicej2,twicej3,twicem1,twicem2,twicem3) in self.wdict:
             return self.wdict[(twicej1,twicej2,twicej3,twicem1,twicem2,twicem3)]
         else:
             w3jtemp = Wigner3j(twicej1/2.0,twicej2/2.0,twicej3/2.0,twicem1/2.0,twicem2/2.0,twicem3/2.0)
@@ -165,7 +165,7 @@ def makeCkq(LSJmJstates,LSJlevels,LSterms,doublyReducedUk):
     leveldict = {}
     for k in range(len(LSJlevels)):
         leveldict[LSJlevels[k]] = k
-    print "pring making singly reduced Uk"
+    print("Making singly reduced Uk matricies")
     singlyreducedUk = makesinglyreducedUk(doublyReducedUk,LSterms,LSJlevels)
     multiplet_size = []
     multiplet_start = []
@@ -179,7 +179,7 @@ def makeCkq(LSJmJstates,LSJlevels,LSterms,doublyReducedUk):
         multiplet_size.append(twiceJ+1)
         for twicemJ in twicemJvals:
             if (twiceJ%2)==0:
-                assert(LSJmJstates[count]=='%s %3d  '%(lvl,twicemJ/2))
+                assert(LSJmJstates[count]=='%s %3d  '%(lvl,twicemJ//2))
             else:
                 assert(LSJmJstates[count]=='%s %3d/2'%(lvl,twicemJ))
             count=count+1
@@ -189,7 +189,7 @@ def makeCkq(LSJmJstates,LSJlevels,LSterms,doublyReducedUk):
     for k in [2,4,6]:
         lCkl = reducedCk(3,k,3)
         for q in range(-k,k+1):
-            print "making C%d%d"%(k,q)
+            print("making C%d%d matrix"%(k,q))
             Ckq[(k,q)] = np.zeros([numstates,numstates])
 
             for i in range(len(LSJlevels)):
@@ -197,7 +197,7 @@ def makeCkq(LSJmJstates,LSJlevels,LSterms,doublyReducedUk):
                 isize = multiplet_size[i]
                 istop = istart+isize
                 for j in range(len(LSJlevels)):
-                    if abs(singlyreducedUk[k/2-1,i,j])<1e-10:
+                    if abs(singlyreducedUk[k//2-1,i,j])<1e-10:
                         continue                   
                     jstart = multiplet_start[j]
                     jsize = multiplet_size[j]
@@ -214,13 +214,13 @@ def makeCkq(LSJmJstates,LSJlevels,LSterms,doublyReducedUk):
                             mJprime = -Jprime + ij                    
                             threejtemp = wignerlookup.w3j(twiceJ,2*k,twiceJprime,-twicemJ,2*q,twicemJprime)
                             if(threejtemp!=0):
-                                Ckq[(k,q)][istart+ii,jstart+ij] =  (-1)**(J-mJ)*threejtemp*singlyreducedUk[k/2-1,i,j]*lCkl
+                                Ckq[(k,q)][istart+ii,jstart+ij] =  (-1)**(J-mJ)*threejtemp*singlyreducedUk[k//2-1,i,j]*lCkl
                                 #print "yes!",(-1)**(J-mJ),threejtemp,singlyreducedUk[k/2-1,i,j],lCkl
     return Ckq
 
 #takes free ion operators defined over LSJ levels and epands them to those defined in terms of LSJmJ states
 def makeFullFreeIonOperators(nf,LSJlevels,fi_mat):
-    numstates = factorial(14)/(factorial(nf)*factorial(14-nf))
+    numstates = factorial(14)//(factorial(nf)*factorial(14-nf))
     numstates = int(numstates+0.5)
     full_fi_mat = {}
 
@@ -275,7 +275,7 @@ def read_crosswhite(nf):
 
     #read first line
     line = f.readline().split()
-    line = map(int,line)
+    line = list(map(int,line))
     assert(7-abs(7-nf)==line[0])
     numLS=line[1] #number of LS states
     nJsub=line[2] #number of different J subspaces
@@ -291,13 +291,13 @@ def read_crosswhite(nf):
         map(LSterms.append,line)
         
     #read third line
-    x = map(int,f.readline().split())
+    x = list(map(int,f.readline().split()))
     while(len(x)<2*numLS):
         line = f.readline()
         assert(line!='')
         for k in map(int,line.split()):
             if k>10: #the numbers have run together
-                x.append(k/100)
+                x.append(k//100)
                 x.append(k%100)
             else:
                 x.append(k)
@@ -333,7 +333,7 @@ def read_crosswhite(nf):
         while (len(statesby2J[2*k+Jmin])!=ndim[k]):
             line = f.readline()
             assert(line!='')
-            map(statesby2J[2*k+Jmin].append,line.split())
+            list(map(statesby2J[2*k+Jmin].append,line.split()))
 
     Uk = np.zeros([3,numLS,numLS])
     V = np.zeros([3,numLS,numLS])
@@ -341,9 +341,9 @@ def read_crosswhite(nf):
     lines = f.readlines()
     for line in lines:
         entries = line.split()
-        (i,j) = map(int,entries[0:2])
-        Uk[:,i-1,j-1] = map(float,entries[2:5])
-        V[:,i-1,j-1] = map(float,entries[5:8])
+        (i,j) = list(map(int,entries[0:2]))
+        Uk[:,i-1,j-1] = list(map(float,entries[2:5]))
+        V[:,i-1,j-1] = list(map(float,entries[5:8]))
 
     f.close()
     
@@ -370,7 +370,7 @@ def read_crosswhite(nf):
 
         line=f.readline()
         assert(line.strip()!='')
-        (jsubspace_idx,jsubspace_size)=map(int,line.split())
+        (jsubspace_idx,jsubspace_size)=list(map(int,line.split()))
         assert(jsubspace_idx==jnumber+1) 
         assert(jsubspace_size==ndim[jnumber])
         #get all the parameters for the
@@ -403,12 +403,12 @@ def read_crosswhite(nf):
                 break
             #grrr the formating is such that the numbers aren't
             #always separated by free space
-            (jnum,i,j,pnum) = map(int,line[0:24].split()[0:4])
+            (jnum,i,j,pnum) = list(map(int,line[0:24].split()[0:4]))
             line = line[24:].split()
             print(line)
             mat_element = float(line[0])
             param = line[1]
-            if not(fi_mat.has_key(param)):
+            if not(param in fi_mat):
                 fi_mat[param]=np.zeros([numLSJ,numLSJ])
                 parameters[pnum] = param
             assert(parameters[pnum]==param)
