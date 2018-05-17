@@ -52,17 +52,15 @@ E0 = np.min(evals)
 
 # Loop over each of our zetavals, and calulate the Hamiltonian
 # for that value of zeta, diagonalise and store energy levels.
-idx = 0
 cfparams2 = cfparams
-for zeta in zetavals:
+for i,zeta in enumerate(zetavals):
     cfparams2['ZETA'] = zeta
     H = np.zeros([numLSJ, numLSJ])
     for k in cfparams2.keys():
         if k in fi_mat:
             H = H+cfparams2[k]*fi_mat[k]
     (evals, evects) = np.linalg.eig(H)
-    nrglevels[idx, :] = np.sort(evals)-E0
-    idx = idx+1
+    nrglevels[i, :] = np.sort(evals)-E0
 
 plt.ion()  # interactive plotting, so plt.show() doesn't block
 plt.axis([0, max(zetavals), -2000, 25000])
