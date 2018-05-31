@@ -1,2 +1,2 @@
 include spectrapy/carnall89params.xls
-include data/*
+include spectrapy/data/*

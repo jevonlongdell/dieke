@@ -274,6 +274,7 @@ def makeFullFreeIonOperators(nf, LSJlevels, fi_mat):
 def read_crosswhite(nf):
     # Use 14-nf for nf>7
     reduced_tensor_file = 'data/f%dnm.dat' % (7-abs(7-nf))
+    reduced_tensor_file = os.path.join(__path__[0], reduced_tensor_file)
     f = open(reduced_tensor_file, 'r')
 
     # Read first line
@@ -352,6 +353,8 @@ def read_crosswhite(nf):
     # read in free ion matricies
     #############################
     freeionfilename = 'data/f%dmp.dat' % (nf,)
+    freeionfilename = os.path.join(__path__[0], freeionfilename)
+    
     f = open(freeionfilename, 'r')
 
     fi_mat = {}  # a dictionary to hold our free ion matricies
