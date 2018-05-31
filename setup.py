@@ -10,11 +10,19 @@ setuptools.setup(
     author_email="jevon.longdell@gmail.com",
     description="Crystal field calculations for the rare earths",
     long_description=long_description,
-    long_description_content_type="text/markdown",
+#    long_description_content_type="text/markdown",
     url="https://bitbucket.org/jevonlongdell/spectrapyt",
-    packages=setuptools.find_packages(),
+    packages=['spectrapy'],
+    install_requires=[
+        'pandas',
+        'xlrd',
+        'numpy',
+        'scipy',
+        'matplotlib'
+    ],
     classifiers=(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ),
+    include_package_data=True
 )
