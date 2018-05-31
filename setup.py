@@ -10,7 +10,7 @@ setuptools.setup(
     author_email="jevon.longdell@gmail.com",
     description="Crystal field calculations for the rare earths",
     long_description=long_description,
-#    long_description_content_type="text/markdown",
+#   long_description_content_type="text/markdown",
     url="https://bitbucket.org/jevonlongdell/spectrapyt",
     packages=['spectrapy'],
     install_requires=[
