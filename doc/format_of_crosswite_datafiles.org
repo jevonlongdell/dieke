@@ -69,7 +69,6 @@ Next the three numbers which are matrix elements of the Uk and the three element
 
 
 
-
 * Free ion 
 In files fXnm.dat where X=2,3,..,12
 

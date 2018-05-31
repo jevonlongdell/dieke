@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import spectrapy
+import dieke
 
-# Example of free ion calculation using spectrapy
+# Example of free ion calculation using dieke
 #
 # This makes Figure 3.1 in Mike Reids notes which shows
 # the energy levesl of Pr3+ as the strength of the spin
@@ -15,7 +15,7 @@ import spectrapy
 nf = 2  # the number of f electrions
 
 # Get a whole bunch of matricies from the Crosswhite data files
-(LSJlevels, fi_mat, LSterms, Uk, V) = spectrapy.read_crosswhite(nf)
+(LSJlevels, fi_mat, LSterms, Uk, V) = dieke.read_crosswhite(nf)
 # LSterms     - list of LSterm labels
 # Uk          - Uk in terms of these terms
 # V           - V in terms of these terms
@@ -24,8 +24,9 @@ nf = 2  # the number of f electrions
 
 
 # Read in a a set of crystal field parameters from Pr:LaF3
-# spectrapy reads these from (incomplete) carnall89params.xls
-cfparams = spectrapy.readLaF3params(nf)
+# dieke reads these from (incomplete) carnall89params.xls
+
+cfparams = dieke.readLaF3params(nf)
 
 
 # Get the spin orbit coupling parameter

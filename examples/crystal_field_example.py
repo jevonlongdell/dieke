@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import spectrapy
+import dieke
 
 
 # Calculates the energy levels of Pr:LaF3 as the strength of the
@@ -13,7 +13,7 @@ nf = 2  # 2 f-electrons means we're dealing with Pr
 
 # all the matricies we need
 (LSterms, Uk, LSJlevels, freeion_mat,
- LSJmJstates, full_freeion_mat, Ckq) = spectrapy.makeMatricies(nf)
+ LSJmJstates, full_freeion_mat, Ckq) = dieke.makeMatricies(nf)
 # LSterms          - list of LSterm labels
 # Uk               - Uk in terms of these terms
 # LSJlevels        - list of LSJ levels
@@ -24,8 +24,8 @@ nf = 2  # 2 f-electrons means we're dealing with Pr
 
 
 # Read in a a set of crystal field parameters from Pr:LaF3
-# spectrapy reads these from (incomplete) carnall89params.xls
-cfparams = spectrapy.readLaF3params(nf)
+# dieke reads these from (incomplete) carnall89params.xls
+cfparams = dieke.readLaF3params(nf)
 
 
 # Number of levels and states

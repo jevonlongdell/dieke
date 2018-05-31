@@ -1,2 +1,2 @@
-include spectrapy/carnall89params.xls
-include spectrapy/data/*
+include dieke/carnall89params.xls
+include dieke/data/*
