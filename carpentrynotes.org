@@ -1,0 +1,7 @@
+* To upload to pipy
+** Build the distribution file
+python3 setup.py sdist bdist_wheel
+** Upload to testpipy
+twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+** Upload to pipy
+twine uplotwine upload dist/*

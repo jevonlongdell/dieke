@@ -5,13 +5,12 @@ with open("README.rst", "r") as fh:
 
 setuptools.setup(
     name="dieke",
-    version="0.0.1",
+    version="0.1.0",
     author="Jevon Longdell",
     author_email="jevon.longdell@gmail.com",
     description="Crystal field calculations for the rare earths",
     long_description=long_description,
-#   long_description_content_type="text/markdown",
-    url="https://bitbucket.org/jevonlongdell/spectrapy",
+    url="https://github.com/jevonlongdell/dieke",
     packages=['dieke'],
     install_requires=[
         'pandas',
