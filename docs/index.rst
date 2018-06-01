@@ -7,9 +7,9 @@ Welcome to Dieke's documentation!
 
    code
    format_of_crosswhite_datafiles	     
+   installation
 .. Put these back in as they get something meaningful in them	     
    readme
-   installation
    usage
    modules
    contributing

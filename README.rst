@@ -3,19 +3,6 @@ Dieke
 =====
 
 
-.. image:: https://img.shields.io/pypi/v/dieke.svg
-        :target: https://pypi.python.org/pypi/dieke
-
-.. image:: https://img.shields.io/travis/jevonlongdell/dieke.svg
-        :target: https://travis-ci.org/jevonlongdell/dieke
-
-.. image:: https://readthedocs.org/projects/dieke/badge/?version=latest
-        :target: https://dieke.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
-
-
-
-
 Crystal field calculations for the Rare Earths
 
 
@@ -26,12 +13,5 @@ Crystal field calculations for the Rare Earths
 Features
 --------
 
-* TODO
+* Reads Crosswhite Fortran datafiles into python code
 
-Credits
--------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
