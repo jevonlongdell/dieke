@@ -11,12 +11,10 @@ __author__ = """Jevon Longdell"""
 __email__ = 'jevon.longdell@gmail.com'
 __version__ = '0.1.0'
 
-
-
-
 def makeMatricies(nf):
-    """ Returns set of matricies from which crystal field Hamiltonians can be made.
-    
+    """ 
+    Returns set of matricies from which crystal field Hamiltonians can be made.
+
     Parameters
     ----------
     nf : int
@@ -24,67 +22,42 @@ def makeMatricies(nf):
 
     Returns
     -------
-    A tuplee consisting of:
+    tuple
+        A tuple of goodies.
+
+    Notes
+    -----
+
+    The returned tuple consists of:
  
     LSterms,
           A list of strings which are labels for the different terms for
-          this ion for praseodymium this is
-          ['1 3P', '1 3F', '1 3H', '1 1S', '1 1D', '1 1G', '1 1I']
+          this ion for praseodymium this is:
+          ``['1 3P', '1 3F', '1 3H', '1 1S', '1 1D', '1 1G', '1 1I']``
     Uk,
           A list of the three U_k matricies in terms of these terms.
     LSJlevels,
           A list of labels for the LSJ levels for this ion. For praseodymium
           this is like 
-          ['1 3P  0  ', '1 1S  0  ', ...
+          ``['1 3P  0  ', '1 1S  0  ', ...``
     freeion_mat
-          A dictionar of free ion matricies in terms of those levels the keys are
-          ['P2', 'F2', 'F4', 'P4', 'F6', '.01ALPH', 'M4', 'BETA', 'ALPHA', 'M0', 'M2', 'P6', 'ZETA', 'GAMMA']
+          A dictionary of free ion matricies in terms of those levels the keys
+          are ``['P2', 'F2', 'F4', 'P4', 'F6', '.01ALPH', 'M4', 'BETA', 'ALPHA', 'M0', 'M2', 'P6', 'ZETA', 'GAMMA']``
+
     LSJmJstates
-          list labels for the states labeled by LSJmJ
-          ['1 3P  0     0  ', '1 1S  0     0  ', '1 3P  1    -1  ', '1 3P  1     0  ', ...
+          list labels for the states labeled by L,S,J,mJ. For Pr3+ 
+          ``['1 3P  0     0  ', '1 1S  0     0  ', '1 3P  1    -1  ', '1 3P  1     0  ', ...``
+
     full_freeion_mat
-          the free ion matricies again but now in terms of LSJmJ
+          The free ion matricies again but now in terms of L,S,J,mJ.
     Ckq
-         The Ckq matricies as a dictionary use the tuple (k,q) as the key to get the correponding matrix
-    
+          The Ckq matricies as a dictionary, use the tuple (k,q) as the key to 
+          get the correponding matrix.
 
-    ....
-         ..........
-    See Also
-    --------
-    otherfunc : relationship (optional)
-    newfunc : Relationship (optional), which could be fairly long, in which
-              case the line wraps here.
-    thirdfunc, fourthfunc, fifthfunc
-    Notes
-    -----
-    Notes about the implementation algorithm (if needed).
-    This can have multiple paragraphs.
-    You may include some math:
-    .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-    And even use a greek symbol like :math:`omega` inline.
-    References
-    ----------
-    Cite the relevant literature, e.g. [1]_.  You may also cite these
-    references in the notes section above.
-    .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-       expert systems and adaptive co-kriging for environmental habitat
-       modelling of the Highland Haggis using object-oriented, fuzzy-logic
-       and neural-network techniques," Computers & Geosciences, vol. 22,
-       pp. 585-588, 1996.
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-    >>> a = [1, 2, 3]
-    >>> print [x + 3 for x in a]
-    [4, 5, 6]
-    >>> print "a\n\nb"
-    a
-    b
+    Example
+    -------
+    See ``crystal_field_example.py`` in the examples folder
     """
-
-    
     (LSJlevels, freeion_mat, LSterms, Uk, V) = read_crosswhite(nf)
     (LSJmJstates, full_freeion_mat) = makeFullFreeIonOperators(
                                               nf, LSJlevels, freeion_mat)
@@ -342,6 +315,46 @@ def makeFullFreeIonOperators(nf, LSJlevels, fi_mat):
 
 
 def read_crosswhite(nf):
+    """
+    Returns set of matricies from the crosswhite datafiles.
+
+    Parameters
+    ----------
+    nf : int
+        The number of f electrons (e.g. set nf = 2 for Pr3+)
+
+    Returns
+    -------
+    tuple
+        A tuple of goodies.  (LSJlevels, fi_mat, LSterms, Uk, V)
+
+
+    Notes
+    -----
+
+    The returned tuple consists of:
+ 
+    LSterms,
+          A list of strings which are labels for the different terms for
+          this ion for praseodymium this is:
+          ``['1 3P', '1 3F', '1 3H', '1 1S', '1 1D', '1 1G', '1 1I']`` 
+    Uk,
+          A list of the three U_k matricies in terms of these terms.
+    V,
+          V in terms of these terms.
+    LSJlevels,
+          A list of labels for the LSJ levels for this ion. For praseodymium
+          this is like 
+          ``['1 3P  0  ', '1 1S  0  ', ...``
+    freeion_mat
+          A dictionary of free ion matricies in terms of those levels the keys
+          are ``['P2', 'F2', 'F4', 'P4', 'F6', '.01ALPH', 'M4', 'BETA', 'ALPHA', 'M0', 'M2', 'P6', 'ZETA', 'GAMMA']``
+
+    Examples
+    --------
+    See ``free_ion_example.py`` in the examples folder.
+
+    """  
     # Use 14-nf for nf>7
     reduced_tensor_file = 'data/f%dnm.dat' % (7-abs(7-nf))
     reduced_tensor_file = os.path.join(__path__[0], reduced_tensor_file)

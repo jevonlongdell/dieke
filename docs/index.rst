@@ -5,6 +5,7 @@ Welcome to Dieke's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   code
    format_of_crosswhite_datafiles	     
 .. Put these back in as they get something meaningful in them	     
    readme
