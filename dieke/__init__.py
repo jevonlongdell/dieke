@@ -5,6 +5,15 @@ from fractions import Fraction
 import pandas
 import os
 
+"""Top-level package for Dieke."""
+
+__author__ = """Jevon Longdell"""
+__email__ = 'jevon.longdell@gmail.com'
+__version__ = '0.1.0'
+
+
+
+
 def makeMatricies(nf):
     """ Returns set of matricies from which crystal field Hamiltonians can be made.
     
