@@ -2,6 +2,7 @@ import numpy as np
 from .wigner import Wigner6j, Wigner3j
 from scipy.misc import factorial
 from fractions import Fraction
+from sljcalcs import tmagmomval
 import pandas
 import os
 
