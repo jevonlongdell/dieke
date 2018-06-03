@@ -2,7 +2,7 @@ import numpy as np
 from .wigner import Wigner6j, Wigner3j
 from scipy.misc import factorial
 from fractions import Fraction
-from sljcalcs import tmagmomval
+from .sljcalc import tmagmomval
 import pandas
 import os
 
@@ -11,6 +11,73 @@ import os
 __author__ = """Jevon Longdell"""
 __email__ = 'jevon.longdell@gmail.com'
 __version__ = '0.1.0'
+
+
+class RareEarthIon:
+    def __init__(self, nf):
+        (self.LStermLabels,
+         self.Uk,
+         self.LSJlevelLabels,
+         self.freeion_mat,
+         self.LSJmJstateLabels,
+         self.FreeIonMatrix,
+         self.Ckq) = makeMatricies(nf)
+        self.N = factorial(14)//(factorial(nf)*factorial(14-nf))
+        self.N = int(self.N+0.5)
+
+        L = np.zeros((self.N, self.N))
+        S = np.zeros((self.N, self.N))
+        J = np.zeros((self.N, self.N))
+        mJ = np.zeros((self.N, self.N))
+
+        for ii in range(self.N):
+            L[ii, ii] = LfromStateLabel(self.LSJmJstateLabels[ii])
+            S[ii, ii] = SfromStateLabel(self.LSJmJstateLabels[ii])
+            J[ii, ii] = JfromStateLabel(self.LSJmJstateLabels[ii])
+            mJ[ii, ii] = mJfromStateLabel(self.LSJmJstateLabels[ii])
+
+        self.FreeIonMatrix['L'] = L
+        self.FreeIonMatrix['S'] = S
+        self.FreeIonMatrix['J'] = J
+        self.FreeIonMatrix['mJ'] = mJ
+
+    def Cmatrix(self, k, q):
+        return self.Ckq[(k, q)]
+
+    def numlevels(self):
+        return len(self.LSJlevelLabels)
+
+    def numstates(self):
+        return self.N
+
+
+class IsotropicRareEarthIon:
+    def __init__(self, nf):
+        (self.LSJlevelLabels,
+         self.FreeIonMatrix,
+         self.LSterms,
+         self.Uk,
+         self.V) = read_crosswhite(nf)
+
+        self.N = len(self.LSJlevelLabels)
+
+        L = np.zeros((self.N, self.N))
+        S = np.zeros((self.N, self.N))
+        J = np.zeros((self.N, self.N))
+
+        for ii in range(self.N):
+            L[ii, ii] = LfromLevelLabel(self.LSJlevelLabels[ii])
+            S[ii, ii] = SfromLevelLabel(self.LSJlevelLabels[ii])
+            J[ii, ii] = JfromLevelLabel(self.LSJlevelLabels[ii])
+
+        self.FreeIonMatrix['L'] = L
+        self.FreeIonMatrix['S'] = S
+        self.FreeIonMatrix['J'] = J
+
+
+    def numlevels(self):
+        return self.N
+
 
 def makeMatricies(nf):
     """ 
@@ -30,7 +97,7 @@ def makeMatricies(nf):
     -----
 
     The returned tuple consists of:
- 
+
     LSterms,
           A list of strings which are labels for the different terms for
           this ion for praseodymium this is:
@@ -39,15 +106,14 @@ def makeMatricies(nf):
           A list of the three U_k matricies in terms of these terms.
     LSJlevels,
           A list of labels for the LSJ levels for this ion. For praseodymium
-          this is like 
+          this is like
           ``['1 3P  0  ', '1 1S  0  ', ...``
     freeion_mat
           A dictionary of free ion matricies in terms of those levels the keys
           are ``['P2', 'F2', 'F4', 'P4', 'F6', '.01ALPH', 'M4', 'BETA', 'ALPHA', 'M0', 'M2', 'P6', 'ZETA', 'GAMMA']``
 
     LSJmJstates
-          list labels for the states labeled by L,S,J,mJ. For Pr3+ 
-          ``['1 3P  0     0  ', '1 1S  0     0  ', '1 3P  1    -1  ', '1 3P  1     0  ', ...``
+          list labels for the states labeled by L,S,J,mJ. For Pr3+ ``['1 3P  0     0  ', '1 1S  0     0  ', '1 3P  1    -1  ', '1 3P  1     0  ', ...``
 
     full_freeion_mat
           The free ion matricies again but now in terms of L,S,J,mJ.
