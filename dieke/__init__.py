@@ -156,8 +156,8 @@ def makeMatricies(nf):
 
 
 def readLaF3params(nf):
-    print(__file__)
-    pd = pandas.read_excel(os.path.join(__path__[0],'carnall89params.xls'),
+    # print(__file__)
+    pd = pandas.read_excel(os.path.join(__path__[0], 'carnall89params.xls'),
                            skiprows=2).set_index('param')
     RareEarths = ['La', 'Ce', 'Pr', 'Nd', 'Pm',
                   'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho',
@@ -228,7 +228,7 @@ def SfromStateLabel(levellabel):
 def JfromStateLabel(levellabel):
     if levellabel[7] == '/':
         return int(levellabel[5:7])/2.0
-    else:Seniority
+    else:
         return int(levellabel[5:7])
 
 
@@ -237,6 +237,7 @@ def mJfromStateLabel(levellabel):
         return int(levellabel[9:13])/2.0
     else:
         return int(levellabel[9:13])
+
 
 def SeniorityfromStateLabel(statelabel):
     return int(statelabel[0])
@@ -318,7 +319,7 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk):
     leveldict = {}
     for k in range(len(LSJlevels)):
         leveldict[LSJlevels[k]] = k
-    print("Making singly reduced Uk matricies")
+    # print("Making singly reduced Uk matricies")
     singlyreducedUk = makesinglyreducedUk(doublyReducedUk, LSterms, LSJlevels)
     multiplet_size = []
     multiplet_start = []
@@ -343,7 +344,7 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk):
     for k in [2, 4, 6]:
         lCkl = reducedCk(3, k, 3)
         for q in range(-k, k+1):
-            print("Making C%d%d matrix." % (k, q))
+            # print("Making C%d%d matrix." % (k, q))
             Ckq[(k, q)] = np.zeros([numstates, numstates])
 
             for i in range(len(LSJlevels)):
@@ -591,7 +592,7 @@ def read_crosswhite(nf):
 
         while(True):
             line = f.readline()
-            print(line)
+            # print(line)
             if line == []:
                 break
             if len(line.strip()) == 0:
@@ -600,7 +601,7 @@ def read_crosswhite(nf):
             # always separated by free space
             (jnum, i, j, pnum) = list(map(int, line[0:24].split()[0:4]))
             line = line[24:].split()
-            print(line)
+            # print(line)
             mat_element = float(line[0])
             param = line[1]
             if not(param in fi_mat):

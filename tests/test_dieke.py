@@ -6,7 +6,7 @@
 import pytest
 
 
-from dieke import dieke
+import dieke
 
 
 @pytest.fixture
@@ -23,3 +23,9 @@ def test_content(response):
     """Sample pytest test function with the pytest fixture as an argument."""
     # from bs4 import BeautifulSoup
     # assert 'GitHub' in BeautifulSoup(response.content).title.string
+    rare_earths = ["La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd",
+                   "Tb", "Dy", "Ho", "Er", "Tm", "Yb"]
+
+    for k in range(2, 13):
+        print("Making matricies for %s (nf=%d)\n" % (rare_earths[k], k))
+        dieke.RareEarthIon(k)
