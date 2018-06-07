@@ -4,7 +4,7 @@
 """Tests for `dieke` package."""
 
 import pytest
-
+# from multiprocessing import Pool
 
 import dieke
 
@@ -29,3 +29,7 @@ def test_content(response):
     for k in range(2, 13):
         print("Making matricies for %s (nf=%d)\n" % (rare_earths[k], k))
         dieke.RareEarthIon(k)
+        
+    # this "works" but only if you have a lot of ram 
+    # p = Pool(8)
+    # p.map(dieke.RareEarthIon, range(2, 13))
