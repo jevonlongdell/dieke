@@ -26,10 +26,10 @@ def test_content(response):
     rare_earths = ["La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd",
                    "Tb", "Dy", "Ho", "Er", "Tm", "Yb"]
 
-    for k in range(2, 13):
+    for k in [2]:  # range(2, 13):
         print("Making matricies for %s (nf=%d)\n" % (rare_earths[k], k))
         dieke.RareEarthIon(k)
-        
-    # this "works" but only if you have a lot of ram 
+
+    # This "works" but only if you have a lot of ram
     # p = Pool(8)
     # p.map(dieke.RareEarthIon, range(2, 13))
