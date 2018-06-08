@@ -1,7 +1,15 @@
 =====
 Dieke
 =====
+.. image:: https://img.shields.io/pypi/v/dieke.svg
+        :target: https://pypi.python.org/pypi/dieke
 
+.. image:: https://img.shields.io/travis/jevonlongdell/dieke.svg
+        :target: https://travis-ci.org/jevonlongdell/dieke
+
+.. image:: https://readthedocs.org/projects/dieke/badge/?version=latest
+        :target: https://dieke.readthedocs.io/en/latest/?badge=latest
+        :alt: Documentation Status
 
 Crystal field calculations for the Rare Earths
 

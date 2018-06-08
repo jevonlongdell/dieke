@@ -1,7 +1,22 @@
 * To upload to pipy
+** To change version number
+*** bumpversion minor --dry-run --verbose
+changes the middle of the triad ie 0.1.0 -> 0.2.0
+*** bumpversion patch --dry-run --verbose
+does a change line 0.1.0 -> 0.1.1
+*** bumpversion major --dry-run --verbose/com
+changes the major 
 ** Build the distribution file
 python3 setup.py sdist bdist_wheel
 ** Upload to testpipy
 twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 ** Upload to pipy
-twine uplotwine upload dist/*
+twine upload dist/*
+
+* To change version number
+** bumpversion minor --dry-run --verbose
+changes the middle of the triad ie 0.1.0 -> 0.2.0
+** bumpversion patch --dry-run --verbose
+does a change line 0.1.0 -> 0.1.1
+** bumpversion major --dry-run --verbose/com
+changes the major 
