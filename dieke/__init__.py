@@ -468,7 +468,6 @@ def read_crosswhite(nf):
     reduced_tensor_file = 'data/f%dnm.dat' % (7-abs(7-nf))
     reduced_tensor_file = os.path.join(__path__[0], reduced_tensor_file)
     f = open(reduced_tensor_file, 'r')
-
     # Read first line
     line = f.readline().split()
     line = list(map(int, line))
@@ -480,11 +479,15 @@ def read_crosswhite(nf):
 
     # Read second line
     LSterms = f.readline().split()
+    #    import pdb; pdb.set_trace()
     while(len(LSterms) != numLS):
         line = f.readline()
         assert(line != '')
         line = line.split()
-        map(LSterms.append, line)
+        # the following line doesn work in python3
+        # map(LSterms.append, line)
+        # this one does thoug
+        LSterms.extend(line)
 
     # Read third line
     x = list(map(int, f.readline().split()))
