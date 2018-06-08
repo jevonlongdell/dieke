@@ -21,6 +21,7 @@ setuptools.setup(
     ],
     classifiers=(
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 2",
         "Operating System :: OS Independent",
     ),
     include_package_data=True
