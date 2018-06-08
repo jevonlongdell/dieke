@@ -10,7 +10,7 @@ import os
 
 __author__ = """Jevon Longdell"""
 __email__ = 'jevon.longdell@gmail.com'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 
 class RareEarthIon:
