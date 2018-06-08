@@ -5,7 +5,7 @@ with open("README.rst", "r") as fh:
 
 setuptools.setup(
     name="dieke",
-    version="version='0.1.1'",
+    version='0.1.1',
     author="Jevon Longdell",
     author_email="jevon.longdell@gmail.com",
     description="Crystal field calculations for the rare earths",
