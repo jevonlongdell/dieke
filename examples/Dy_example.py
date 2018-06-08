@@ -8,7 +8,7 @@ import dieke
 # values.
 
 
-nf = 9  # 2 f-electrons means we're dealing with Dy
+nf = 9  # 9 f-electrons means we're dealing with Dy
 
 # This object contains the matricies we need for the
 # calculations all in the dictionary "FreeIonMatrix"
