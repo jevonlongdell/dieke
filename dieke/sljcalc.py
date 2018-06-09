@@ -11,22 +11,22 @@ def odd(x):
     """
     returns False if x%2==0, otherwise returns true
     """
-    if x%2==0:
+    if x % 2 == 0:
         return False
     else:
         return True
 
-    
 
-def istriad(j1,j2,j3):
+def istriad(j1, j2, j3):
     """
     Translated from Mike's emp code j1,j2,j3 integer
-    Checks to see if j1 x j2 contains j3 
+    Checks to see if j1 x j2 contains j3
     """
     if (j1+j2 >= j3) and (abs(j1-j2) <= j3) and (not odd(j1+j2+j3)):
         return True
     else:
         return False
+
 
 def sixj(ja, jb, jc, jd, je, jf):
     """
@@ -37,9 +37,6 @@ def sixj(ja, jb, jc, jd, je, jf):
     Wigner6j(ja/2, jb/2, jc/2, jd/2, je/2, jf/2)
 
 
-
-
-    
 def t0kkval(k, rme, s1, l1, j1, s2, l2, j2):
     """
     {calculates slj reduced matrix element of uk  etc }
@@ -61,7 +58,7 @@ def tk0kval(k, rme, s1, l1, j1, s2, l2, j2):
     """
     {calculates slj reduced matrix element of s   etc }
     """
-    if not istriad(s1,s2,k):
+    if not istriad(s1, s2, k):
         return 0.0
     if (l1 != l2):
         return 0.0
@@ -77,7 +74,7 @@ def tk0kval(k, rme, s1, l1, j1, s2, l2, j2):
 def tmagmomval(s1,l1,j1,s2,l2,j2):
     """
     calculates slj reduced matrix element of l+gs*s 
-    use formula for <]]s[[> and <]]l[[> and the 
+    uses formula for <]]s[[> and <]]l[[> and the 
     tk0k and t0kk functions
     """
     gs = 2.00232
@@ -93,6 +90,36 @@ def tmagmomval(s1,l1,j1,s2,l2,j2):
     tmagmomval = gs * tk0kval(2,sqrt(sx*(sx+1)*(2*sx+1)),s1,l1,j1,s2,l2,j2)+t0kkval(2,sqrt(lx*(lx+1)*(2*lx+1)),s1,l1,j1,s2,l2,j2)
 
 
+def reducedL(s1, l1, j1, s2, j2, l2):
+    """
+    Calculates the slj reduced matrix elements for L
+    guessed from Mike's tmagmomval function.
+    """
+    if (s1 != s2):
+        return 0.0
+    if (l1 != l2):
+        return 0.0
+    if (not istriad(j1, j2, 2)):
+        return 0.0
+    # sx = s1/2.0
+    lx = l1/2.0
+    return t0kkval(2, sqrt(lx*(lx+1)*(2*lx+1)), s1, l1, j1, s2, l2, j2)
+
+
+def reducedS(s1, l1, j1, s2, j2, l2):
+    """
+    Calculates the slj reduced matrix elements for S
+    guessed from Mike's tmagmomval function.
+    """
+    if (s1 != s2):
+        return 0.0
+    if (l1 != l2):
+        return 0.0
+    if (not istriad(j1, j2, 2)):
+        return 0.0
+    sx = s1/2.0
+    # lx = l1/2.0
+    return tk0kval(2, sqrt(sx*(sx+1)*(2*sx+1)), s1, l1, j1, s2, l2, j2)
 
 
 oldcode =  """

@@ -29,37 +29,43 @@ class RareEarthIon:
         S = np.zeros((self.N, self.N))
         J = np.zeros((self.N, self.N))
         mJ = np.zeros((self.N, self.N))
-        sen = np.zeros((self.N,self.N))
+        # The index given in the crosswhite data files
+        # to distinguish different terms that have the same
+        # L and S
+        cwidx = np.zeros((self.N,self.N))
 
         for ii in range(self.N):
             L[ii, ii] = LfromStateLabel(self.LSJmJstateLabels[ii])
             S[ii, ii] = SfromStateLabel(self.LSJmJstateLabels[ii])
             J[ii, ii] = JfromStateLabel(self.LSJmJstateLabels[ii])
             mJ[ii, ii] = mJfromStateLabel(self.LSJmJstateLabels[ii])
-            sen[ii, ii] = SeniorityfromStateLabel(self.LSJmJstateLabels[ii])
+            cwidx[ii, ii] = CrosswhiteIndexfromStateLabel(self.LSJmJstateLabels[ii])
 
         self.FreeIonMatrix['L'] = L
         self.FreeIonMatrix['S'] = S
         self.FreeIonMatrix['J'] = J
         self.FreeIonMatrix['mJ'] = mJ
-        self.FreeIonMatrix['SEN'] = sen
+        self.FreeIonMatrix['CWIDX'] = cwidx
 
         # Make zeeman operators
-        M0 = np.zeros((self.N, self.N))
-        M1 = np.zeros((self.N, self.N))
-
-        # for ii in range(self.N):
-        #     twiceL = int(2*self.FreeIonMatrix['L'][ii, ii]_0.5)
-        #     twiceS = int(2*self.FreeIonMatrix['S'][ii, ii]+0.5)
-        #     twiceJ = int(2*self.FreeIonMatrix['J'][ii, ii]+0.5)
-        #     twicemJ = int(2*self.FreeIonMatrix['mJ'][ii, ii]+0.5)
-        #     sen = int(self.FreeIonMatrix['SEN'][ii, ii]+0.5)
-        #     # Todo: Could make this twice the fee
-        #     for jj in range(self.N):
-        #         senprime = int(self.FreeIonMatrix['SEN'][jj, jj]+0.5)
-        #         if sen==senprime:
-        #             M0[ii, jj] =
-        #             M1[ii, jj] =
+        Lz = np.zeros((self.N, self.N))
+        Lp = np.zeros((self.N, self.N))  # L_+ operator  
+        Sz = np.zeros((self.N, self.N))
+        Sp = np.zeros((self.N, self.N))  # S_+ operator
+        for ii in range(self.N):
+            twiceL = int(2*self.FreeIonMatrix['L'][ii, ii]+0.5)
+            twiceS = int(2*self.FreeIonMatrix['S'][ii, ii]+0.5)
+            twiceJ = int(2*self.FreeIonMatrix['J'][ii, ii]+0.5)
+            twicemJ = int(2*self.FreeIonMatrix['mJ'][ii, ii]+0.5)
+            cwidx = int(self.FreeIonMatrix['CWIDX'][ii, ii]+0.5)
+            # Todo: Could make this twice as fast by only doing on triangle
+            for jj in range(self.N):
+                cwidxp = int(self.FreeIonMatrix['CWIDX'][jj, jj]+0.5)
+                if cwidx == cwidxp:
+                    Lz[ii, jj] =
+                    Lp[ii, jj] =
+                    Sz[ii, jj] =
+                    Sp[ii, jj] =
 
 
     def Cmatrix(self, k, q):
@@ -239,7 +245,7 @@ def mJfromStateLabel(levellabel):
         return int(levellabel[9:13])
 
 
-def SeniorityfromStateLabel(statelabel):
+def CrosswhiteIndexfromStateLabel(statelabel):
     return int(statelabel[0])
 
 
