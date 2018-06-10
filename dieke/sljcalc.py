@@ -1,4 +1,5 @@
 from __future__ import division
+import pdb
 
 # Some code translated from Mike Reid's Pascal Code "linuxemp"
 # Specifically zeeman operator stuff from sljcalc.p
@@ -34,7 +35,7 @@ def sixj(ja, jb, jc, jd, je, jf):
     { doesnt check validity }
     { rather than translating the pascall I just use the python version}
     """
-    Wigner6j(ja/2, jb/2, jc/2, jd/2, je/2, jf/2)
+    return Wigner6j(ja/2.0, jb/2.0, jc/2.0, jd/2.0, je/2.0, jf/2.0)
 
 
 def t0kkval(k, rme, s1, l1, j1, s2, l2, j2):

@@ -2,7 +2,7 @@ import numpy as np
 from .wigner import Wigner6j, Wigner3j
 from scipy.misc import factorial
 from fractions import Fraction
-from .sljcalc import tmagmomval
+from .sljcalc import reducedL, reducedS
 import pandas
 import os
 
@@ -48,10 +48,13 @@ class RareEarthIon:
         self.FreeIonMatrix['CWIDX'] = cwidx
 
         # Make zeeman operators
-        Lz = np.zeros((self.N, self.N))
-        Lp = np.zeros((self.N, self.N))  # L_+ operator  
-        Sz = np.zeros((self.N, self.N))
-        Sp = np.zeros((self.N, self.N))  # S_+ operator
+        wignerlookup = WignerDict()
+        L0 = np.zeros((self.N, self.N), dtype=complex)
+        L1 = np.zeros((self.N, self.N), dtype=complex)
+        Lminus1 = np.zeros((self.N, self.N), dtype=complex)
+        S0 = np.zeros((self.N, self.N), dtype=complex)
+        S1 = np.zeros((self.N, self.N), dtype=complex)
+        Sminus1 = np.zeros((self.N, self.N), dtype=complex)
         for ii in range(self.N):
             twiceL = int(2*self.FreeIonMatrix['L'][ii, ii]+0.5)
             twiceS = int(2*self.FreeIonMatrix['S'][ii, ii]+0.5)
@@ -60,12 +63,39 @@ class RareEarthIon:
             cwidx = int(self.FreeIonMatrix['CWIDX'][ii, ii]+0.5)
             # Todo: Could make this twice as fast by only doing on triangle
             for jj in range(self.N):
+                twiceLp = int(2*self.FreeIonMatrix['L'][jj, jj]+0.5)
+                twiceSp = int(2*self.FreeIonMatrix['S'][jj, jj]+0.5)
+                twiceJp = int(2*self.FreeIonMatrix['J'][jj, jj]+0.5)
+                twicemJp = int(2*self.FreeIonMatrix['mJ'][jj, jj]+0.5)
                 cwidxp = int(self.FreeIonMatrix['CWIDX'][jj, jj]+0.5)
-                if cwidx == cwidxp:
-                    Lz[ii, jj] =
-                    Lp[ii, jj] =
-                    Sz[ii, jj] =
-                    Sp[ii, jj] =
+                if cwidx == cwidxp and twicemJ == twicemJp:
+                    if twiceLp == twiceL and  twiceLp == twiceL:
+                        # Use 4-3 from Wyborne's, "Spectroscopic Properties of
+                        # Rare Earths"
+                        sign = (-1)**((twiceJ-twicemJ)/2.0)
+                        L0[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, 0, twicemJ) * \
+                                     reducedL(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
+                        L1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, 2, twicemJ) * \
+                                     reducedL(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
+                        # Todo probably don't need to calculate L_{-1} could just use
+                        # Hermitianess like properties instead.
+                        Lminus1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, -2, twicemJ) * \
+                                     reducedL(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
+                        S0[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, 0, twicemJ) * \
+                                     reducedS(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
+                        S1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, 2, twicemJ) * \
+                                     reducedS(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
+                        Sminus1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, -2, twicemJ) * \
+                                     reducedS(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
+            self.FreeIonMatrix['Lx']=1/np.sqrt(2)*(Lminus1-L1)
+            self.FreeIonMatrix['Ly']=1j/np.sqrt(2)*(Lminus1+L1)
+            self.FreeIonMatrix['Lz']=L0
+            self.FreeIonMatrix['Sx']=1/np.sqrt(2)*(Sminus1-S1)
+            self.FreeIonMatrix['Sy']=1j/np.sqrt(2)*(Sminus1+S1)
+            self.FreeIonMatrix['Sz']=S0
+            
+            
+                        
 
 
     def Cmatrix(self, k, q):
