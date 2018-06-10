@@ -2,7 +2,7 @@ import numpy as np
 from .wigner import Wigner6j, Wigner3j
 from scipy.misc import factorial
 from fractions import Fraction
-from .sljcalc import reducedL, reducedS
+from .sljcalc import reducedL, reducedS, istriad
 import pandas
 import os
 
@@ -69,18 +69,19 @@ class RareEarthIon:
                 twicemJp = int(2*self.FreeIonMatrix['mJ'][jj, jj]+0.5)
                 cwidxp = int(self.FreeIonMatrix['CWIDX'][jj, jj]+0.5)
                 if cwidx == cwidxp and twicemJ == twicemJp:
-                    if twiceLp == twiceL and  twiceLp == twiceL:
+                    if twiceLp == twiceL and  twiceSp == twiceS:
                         # Use 4-3 from Wyborne's, "Spectroscopic Properties of
                         # Rare Earths"
                         sign = (-1)**((twiceJ-twicemJ)/2.0)
                         L0[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, 0, twicemJ) * \
                                      reducedL(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
-                        L1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, 2, twicemJ) * \
+                        L1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, 2, twicemJp) * \
                                      reducedL(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
                         # Todo probably don't need to calculate L_{-1} could just use
                         # Hermitianess like properties instead.
-                        Lminus1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, -2, twicemJ) * \
+                        Lminus1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, -2, twicemJp) * \
                                      reducedL(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
+                        
                         S0[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, 0, twicemJ) * \
                                      reducedS(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
                         S1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, 2, twicemJ) * \
@@ -89,6 +90,7 @@ class RareEarthIon:
                                      reducedS(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
             self.FreeIonMatrix['Lx']=1/np.sqrt(2)*(Lminus1-L1)
             self.FreeIonMatrix['Ly']=1j/np.sqrt(2)*(Lminus1+L1)
+            self.FreeIonMatrix['L1']=L1
             self.FreeIonMatrix['Lz']=L0
             self.FreeIonMatrix['Sx']=1/np.sqrt(2)*(Sminus1-S1)
             self.FreeIonMatrix['Sy']=1j/np.sqrt(2)*(Sminus1+S1)

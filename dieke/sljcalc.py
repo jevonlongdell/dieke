@@ -91,7 +91,7 @@ def tmagmomval(s1,l1,j1,s2,l2,j2):
     tmagmomval = gs * tk0kval(2,sqrt(sx*(sx+1)*(2*sx+1)),s1,l1,j1,s2,l2,j2)+t0kkval(2,sqrt(lx*(lx+1)*(2*lx+1)),s1,l1,j1,s2,l2,j2)
 
 
-def reducedL(s1, l1, j1, s2, j2, l2):
+def reducedL(s1, l1, j1, s2, l2, j2):
     """
     Calculates the slj reduced matrix elements for L
     guessed from Mike's tmagmomval function.
@@ -107,7 +107,7 @@ def reducedL(s1, l1, j1, s2, j2, l2):
     return t0kkval(2, sqrt(lx*(lx+1)*(2*lx+1)), s1, l1, j1, s2, l2, j2)
 
 
-def reducedS(s1, l1, j1, s2, j2, l2):
+def reducedS(s1, l1, j1, s2, l2, j2):
     """
     Calculates the slj reduced matrix elements for S
     guessed from Mike's tmagmomval function.
