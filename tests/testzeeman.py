@@ -62,7 +62,7 @@ import qutip as q
 
 #consider two coupled spin L and S
 
-Lval = 1
+Lval = 0.5
 Sval = 0.5
 
 [Lx,Ly,Lz] = map(lambda x: q.tensor(x, q.qeye(2*Sval+1)),q.jmat(Lval))
@@ -84,6 +84,7 @@ vects = g[1]
 
 Lz3 = 0*Lz
 Lz2 = 0*Lz
+L1 = 0*Lz
 for ii in range(len(vects)):
     L = Lval
     S = Sval
@@ -94,9 +95,14 @@ for ii in range(len(vects)):
         mJp = mJval[jj]
         matel1 = vects[ii].dag()*Lz*vects[jj]
         # Using
-        
-        matel2 = sign * wignerlookup.w3j(2*J, 2, 2*Jp, -2*mJ, 0, -2*mJp) * \
-                                     dieke.reducedL(2*S, 2*L, 2*J, 2*S, 2*L, 2*Jp)
-        
+        sign = (-1)**(round(J-mJ))
+        matel2 = sign * wignerlookup.w3j(round(2*J), 2, round(2*Jp), round(-2*mJ), 0, round(2*mJp)) * \
+                                     dieke.reducedL(round(2*S), round(2*L), round(2*J), round(2*S), round(2*L), round(2*Jp))
+        matel3 = sign * wignerlookup.w3j(round(2*J), 2, round(2*Jp), round(-2*mJ), 2, round(2*mJp)) * \
+                                     dieke.reducedL(round(2*S), round(2*L), round(2*J), round(2*S), round(2*L), round(2*Jp))
+        Lz2 = Lz2 + vects[ii]*matel2*vects[jj].dag()
+        L1 = L1 + vects[ii]*matel3*vects[jj].dag()
         if np.abs(matel1[0,0]-matel2)>1e-6:
-            raise Exception('spam', 'eggs')
+            print("S = %g,\nL = %g,\nJ = %g,\nJ' = %g,\nmJ = %g,\nmJ' = %g\n" % (S, L, J, Jp,mJ, mJp))
+            print("W.E. gives %g, should be %g\n\n\n" % (matel2,matel1[0,0]) )
+            raise Exception("oh shit")
