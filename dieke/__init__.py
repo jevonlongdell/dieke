@@ -300,16 +300,16 @@ class ReducedMagMomDict:
 
 class WignerDict:
     def __init__(self):
-        self.wdict = {}
+        self.w3jdict = {}
 
     def w3j(self, twicej1, twicej2, twicej3, twicem1, twicem2, twicem3):
         wargs = (twicej1, twicej2, twicej3, twicem1, twicem2, twicem3)
-        if wargs in self.wdict:
-                return self.wdict[wargs]
+        if wargs in self.w3jdict:
+                return self.w3jdict[wargs]
         else:
             w3jtemp = wigner_3j(twicej1/2.0, twicej2/2.0, twicej3/2.0,
-                               twicem1/2.0, twicem2/2.0, twicem3/2.0)
-            self.wdict[(wargs)] = w3jtemp
+                                twicem1/2.0, twicem2/2.0, twicem3/2.0)
+            self.w3jdict[(wargs)] = w3jtemp
             return w3jtemp
 
 

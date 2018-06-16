@@ -17,7 +17,8 @@ setuptools.setup(
         'xlrd',
         'numpy',
         'scipy',
-        'matplotlib'
+        'matplotlib',
+        'sympy'
     ],
     classifiers=(
         "Programming Language :: Python :: 3",
