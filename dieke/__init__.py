@@ -1,5 +1,6 @@
 import numpy as np
-from .wigner import Wigner6j, Wigner3j
+#from .wigner import Wigner6j, Wigner3j
+from sympy.physics.wigner import wigner_3j, wigner_6j
 from scipy.misc import factorial
 from fractions import Fraction
 from .sljcalc import tmagmomval
@@ -249,7 +250,7 @@ def SeniorityfromStateLabel(statelabel):
 
 # <l||C^k||l'> eq 1.20 fro Guokui and Liu
 def reducedCk(l, k, lprime):
-    return (-1)**l*np.sqrt((2*l+1)*(2*lprime+1))*Wigner3j(
+    return (-1)**l*np.sqrt((2*l+1)*(2*lprime+1))*wigner_3j(
         l, k, lprime, 0, 0, 0)
 
 
@@ -275,7 +276,7 @@ def makesinglyreducedUk(doublyReducedUk, LSterms, LSJlevels):
                 # Equation1.37 from Guokui and Liu
                 singlyreducedUk[k_idx, i, j] = \
                     (-1)**(S+Lprime+J+k)*np.sqrt((2*J+1)*(2*Jprime+1)) * \
-                    Wigner6j(J, Jprime, k, Lprime, L, S) * \
+                    wigner_6j(J, Jprime, k, Lprime, L, S) * \
                     doublyReducedUk[k_idx, LStermdict[iterm],
                                     LStermdict[jterm]]
     return singlyreducedUk
@@ -306,7 +307,7 @@ class WignerDict:
         if wargs in self.wdict:
                 return self.wdict[wargs]
         else:
-            w3jtemp = Wigner3j(twicej1/2.0, twicej2/2.0, twicej3/2.0,
+            w3jtemp = wigner_3j(twicej1/2.0, twicej2/2.0, twicej3/2.0,
                                twicem1/2.0, twicem2/2.0, twicem3/2.0)
             self.wdict[(wargs)] = w3jtemp
             return w3jtemp
