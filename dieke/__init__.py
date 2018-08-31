@@ -46,8 +46,8 @@ class RareEarthIon:
         self.FreeIonMatrix['SEN'] = sen
 
         # Make zeeman operators
-        M0 = np.zeros((self.N, self.N))
-        M1 = np.zeros((self.N, self.N))
+        #M0 = np.zeros((self.N, self.N))
+        #M1 = np.zeros((self.N, self.N))
 
         # for ii in range(self.N):
         #     twiceL = int(2*self.FreeIonMatrix['L'][ii, ii]_0.5)
