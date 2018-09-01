@@ -250,7 +250,7 @@ def SeniorityfromStateLabel(statelabel):
 
 # <l||C^k||l'> eq 1.20 fro Guokui and Liu
 def reducedCk(l, k, lprime):
-    return (-1)**l*np.sqrt((2*l+1)*(2*lprime+1))*wigner_3j(
+    return ((-1)**l)*np.sqrt((2*l+1)*(2*lprime+1))*wigner_3j(
         l, k, lprime, 0, 0, 0)
 
 
@@ -464,7 +464,30 @@ def read_crosswhite(nf):
     --------
     See ``free_ion_example.py`` in the examples folder.
 
-    """  
+    """
+
+    #dont actually use cross white files for Cerium
+    if nf==1:
+        LSterms = ['1 2F']
+        numLS = 1
+        Uk = np.zeros([3, numLS, numLS])
+        V = np.zeros([3, numLS, numLS])
+        Uk[0,0,0] = 1
+        Uk[1,0,0] = 1
+        Uk[2,0,0] = 1
+        V[0,0,0] = 1
+        V[1,0,0] = 1
+        V[2,0,0] = 1
+
+        fi_mat = {}  # a dictionary to hold our free ion matricies
+        # the key will be the name eg "F2" or "ZETA"
+        LSJlevels = ['1 2F  7/2', '1 2F  5/2']
+        #values from mike's notes
+        fi_mat['ZETA']= np.array([[1.5, 0], [0, -2.0]])
+        return (LSJlevels, fi_mat, LSterms, Uk, V)
+
+        ########################
+    
     # Use 14-nf for nf>7
     reduced_tensor_file = 'data/f%dnm.dat' % (7-abs(7-nf))
     reduced_tensor_file = os.path.join(__path__[0], reduced_tensor_file)

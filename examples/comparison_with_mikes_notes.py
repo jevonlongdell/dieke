@@ -28,12 +28,22 @@ for operator in ['F2','F4','F6','ZETA']:
     for i in range(numLSJ):
         for j in range(i, numLSJ):
             if np.abs(mat[i, j])>1e-6:
-                print("<%s | %s > = %f" % (Pr.LSJlevelLabels[i],
+                print("<%s | %s | %s > = %f" % (Pr.LSJlevelLabels[i],operator,
                                            Pr.LSJlevelLabels[i],
                                            mat[i, j]))
 
 
+Ce = dieke.RareEarthIon(1)
+mat = Ce.Cmatrix(2,0)
+for i in range(Ce.numstates()):
+    for j in range(Ce.numstates()):
+        if np.abs(mat[i,j])>1e-6:
+            print("<%s | C20 | %s > = %f" % (Ce.LSJmJstateLabels[i],
+                                           Ce.LSJmJstateLabels[j],
+                                           mat[i, j]))
 
+
+                
 # # Make an empy matrix to put the results in as well as an
 # # empty matrix for the Hamiltonian
 # numLSJ = Pr.numlevels()
