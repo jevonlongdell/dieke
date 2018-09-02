@@ -2,12 +2,11 @@ import numpy as np
 #mport matplotlib.pyplot as plt
 import dieke
 
-
-
 nf = 11  # 2 f-electrons means we're dealing with Er
 
 # This object contains the matricies we need for the
 # calculations all in the dictionary "FreeIonMatrix"
+# or via the function "Cmatrix"
 Er = dieke.RareEarthIon(nf)
 
 # Read in a a set of crystal field parameters from Er:LaF3
