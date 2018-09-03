@@ -43,7 +43,7 @@ except FileNotFoundError:
     # Add the crystal field matricies to my dict
     for k in [2, 4, 6]:
         for q in range(k+1):
-            jevmats['C%d%d' % (k, q)] = -Er.Cmatrix(k, q)   
+            jevmats['C%d%d' % (k, q)] = Er.Cmatrix(k, q)   
     pickle.dump(jevmats, gzip.open('jevmats.dat.gz', 'wb'))
 
 

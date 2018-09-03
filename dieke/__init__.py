@@ -25,6 +25,7 @@ class RareEarthIon:
          self.Ckq) = makeMatricies(nf)
         self.N = factorial(14)//(factorial(nf)*factorial(14-nf))
         self.N = int(self.N+0.5)
+        self.nf = nf
 
         L = np.zeros((self.N, self.N))
         S = np.zeros((self.N, self.N))
@@ -151,7 +152,7 @@ def makeMatricies(nf):
     (LSJlevels, freeion_mat, LSterms, Uk, V) = read_crosswhite(nf)
     (LSJmJstates, full_freeion_mat) = makeFullFreeIonOperators(
                                               nf, LSJlevels, freeion_mat)
-    Ckq = makeCkq(LSJmJstates, LSJlevels, LSterms, Uk)
+    Ckq = makeCkq(LSJmJstates, LSJlevels, LSterms, Uk, nf)
     return (LSterms, Uk, LSJlevels, freeion_mat, LSJmJstates,
             full_freeion_mat, Ckq)
 
@@ -314,7 +315,7 @@ class WignerDict:
 
 
 # Equation 1.37 from Guokui and Liu
-def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk):
+def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
     wignerlookup = WignerDict()
     numstates = len(LSJmJstates)
     leveldict = {}
@@ -377,10 +378,13 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk):
                                 cmatrix[istart+ii, jstart+ij] = \
                                     (-1)**(J-mJ)*threejtemp * \
                                     singlyreducedUk[k//2-1, i, j]*lCkl
+            if nf > 7:
+                cmatrix = -cmatrix
             if q != 0:
                 Ckq[(k, q)] = cmatrix + cmatrix.H  # add hermitian conjugate force hermitian
             else:
-                Ckq[(k, q)] = cmatrix 
+                Ckq[(k, q)] = cmatrix
+            
     return Ckq
 
 
