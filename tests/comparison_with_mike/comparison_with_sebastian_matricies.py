@@ -43,9 +43,17 @@ except FileNotFoundError:
     # Add the crystal field matricies to my dict
     for k in [2, 4, 6]:
         for q in range(k+1):
-            jevmats['C%d%d' % (k, q)] = Er.Cmatrix(k, q)   
+            jevmats['C%d%d' % (k, q)] = -Er.Cmatrix(k, q)   
     pickle.dump(jevmats, gzip.open('jevmats.dat.gz', 'wb'))
 
+
+
+#scale cf matricies
+
+# jevmats['C20'] = -jevmats['C20']
+# jevmats['C40'] = -jevmats['C40']
+# jevmats['C60'] = -jevmats['C60']
+# jevmats['C21'] = -np.sqrt(2)*jevmats['C21']
 
 
 matnames = set(jevmats.keys())
@@ -59,8 +67,10 @@ for m in matnames:
     if not(m in sebmats):
         print("Seb missing %s"%(m))
     if (m in jevmats) and (m in sebmats):
-        ms = sebmats[m]
-        mj = jevmats[m]
+        ms = np.matrix(sebmats[m])
+        mj = np.matrix(jevmats[m])
+        assert(np.linalg.norm(ms-ms.H) < EPS)
+        assert(np.linalg.norm(mj-mj.H) < EPS)
         normofdiff = np.linalg.norm(ms-mj)
         if (normofdiff > EPS):
             # print("Matricies differ for %s, norm of diff = %g" % (m,
@@ -68,8 +78,8 @@ for m in matnames:
             (evalss, _) = np.linalg.eig(ms)
             (evalsj, _) = np.linalg.eig(mj)
             #make sure evals are real
-            assert np.linalg.norm(np.imag(evalss)<EPS)
-            assert np.linalg.norm(np.imag(evalsj)<EPS)
+            assert(np.linalg.norm(np.imag(evalss)) < EPS)
+            assert(np.linalg.norm(np.imag(evalsj)) < EPS)
             evalss = np.real(evalss)
             evalsj = np.real(evalsj)
             evalss.sort()

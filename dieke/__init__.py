@@ -346,7 +346,8 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk):
         lCkl = reducedCk(3, k, 3)
         for q in range(-k, k+1):
             # print("Making C%d%d matrix." % (k, q))
-            Ckq[(k, q)] = np.zeros([numstates, numstates])
+#            Ckq[(k, q)]
+            cmatrix = np.matrix(np.zeros([numstates, numstates],dtype='complex128'))
 
             for i in range(len(LSJlevels)):
                 istart = multiplet_start[i]
@@ -373,9 +374,13 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk):
                                                           -twicemJ, 2*q,
                                                           twicemJprime)
                             if(threejtemp != 0):
-                                Ckq[(k, q)][istart+ii, jstart+ij] = \
+                                cmatrix[istart+ii, jstart+ij] = \
                                     (-1)**(J-mJ)*threejtemp * \
                                     singlyreducedUk[k//2-1, i, j]*lCkl
+            if q != 0:
+                Ckq[(k, q)] = cmatrix + cmatrix.H  # add hermitian conjugate force hermitian
+            else:
+                Ckq[(k, q)] = cmatrix 
     return Ckq
 
 
@@ -644,6 +649,6 @@ def read_crosswhite(nf):
     for key in fi_mat.keys():
         fi_mat[key] = fi_mat[key]+np.transpose(fi_mat[key]) - \
                       np.diag(np.diag(fi_mat[key]))
-    # Who knows if this is the right way round?
-    fi_mat['ALPHA'] = 100*fi_mat['.01ALPH']
+    # Why 1000 indeed ...
+    fi_mat['ALPHA'] = 1000*fi_mat['.01ALPH']
     return (LSJlevels, fi_mat, LSterms, Uk, V)
