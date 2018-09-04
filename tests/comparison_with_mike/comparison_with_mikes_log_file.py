@@ -16,8 +16,7 @@ except NameError:
     #py2
     FileNotFoundError = IOError
 
-
-EPS=3e-5
+EPS = 3e-5
 
 
 #get sebastians matricies
@@ -28,6 +27,7 @@ nf = 11  # 2 f-electrons means we're dealing with Er
 # This object contains the matricies we need for the
 # calculations all in the dictionary "FreeIonMatrix"
 # or via the function "Cmatrix"
+
 
 
 #cache my version of the matrix elements to make stuff faster
@@ -48,46 +48,85 @@ for k in [2, 4, 6]:
         jevmats['C%d%d' % (k, q)] = Er.Cmatrix(k, q)
 
 
+statedict = {}
+for i in range(364):
+    statedict[Er.LSJmJstateLabels[i]] = i
 
 
+def mikelabel_to_jevon_label(statelabel):
+    mult = statelabel[0]
+    lchar = statelabel[1]
+    sen = statelabel[2]
+    if sen == ' ':
+        sen = '1'
+    twiceJ = statelabel[3:5]
+    twicemJ = statelabel[5:8]
+    jevonlabel = '%s %s%s %s/2 %s/2' % (sen, mult, lchar, twiceJ, twicemJ)
+    return jevonlabel
 
-# cache my version of the matrix elements to make stuff faster
-# try:
-#     f = gzip.open('jevmats.dat.gz', 'rb')
-#     print("Loading Jevon's matricies")
-#     jevmats = pickle.load(f)
-# except FileNotFoundError:
-#     print("Making Jevon's matricies")
-#     Er = dieke.RareEarthIon(nf)
-#     jevmats = Er.FreeIonMatrix
-#     # Add the crystal field matricies to my dict
-#     for k in [2, 4, 6]:
-#         for q in range(k+1):
-#             jevmats['C%d%d' % (k, q)] = Er.Cmatrix(k, q)   
-#     pickle.dump(jevmats, gzip.open('jevmats.dat.gz', 'wb'))
+# for mname in jevmats:
+#     print('Matrix: %s'%(mname))
+#     m = jevmats[mname]
+#     for i in range(Er.numstates()):
+#         for j in range(Er.numstates()):
+#             if (np.abs(m[i, j]) > EPS):
+#                 print("< %s | %s | %s > = %+.8e %+.8ej" % (Er.LSJmJstateLabels[i],
+#                                                 mname,
+#                                                 Er.LSJmJstateLabels[j],
+#                                                           np.real(m[i,j]),np.imag(m[i,j])))
+
+f =  open('375.cfit.log.txt', 'r')
+
+# Read header
+for k in range(26):
+    f.readline()
+
+mikemats = {}
+count = 1
 
 
+while True:
+    ln = f.readline()
+    if ln.strip()=='':
+        ln = f.readline()
+    if ln.strip()=='':
+        ln = f.readline()
+    if ln.strip().split()[0]=='NPARAMS':
+        break
+    (ctr, name, _, _) = ln.split()
+    assert(int(ctr) == count)
+    count += 1
+    assert(f.readline().strip() == '')
+    m = np.zeros((364, 364))
+    matrixallread = False
+    while not(matrixallread):
+        matels = f.readline().strip().split('    ')
+        for matel in matels:
+            if matel == '':
+                matrixallread = True
+                break
+            (expr, value) = matel.split('=')
+            state1 = mikelabel_to_jevon_label(expr[1:9])
+            state2 = mikelabel_to_jevon_label(expr[11:19])
+            m[statedict[state1], statedict[state2]] = float(value)
+            if state1 != state2:
+                m[statedict[state2], statedict[state1]] = float(value)
+    mikemats[name] = m
 
-#scale cf matricies
-
-# jevmats['C20'] = -jevmats['C20']
-# jevmats['C40'] = -jevmats['C40']
-# jevmats['C60'] = -jevmats['C60']
-# jevmats['C21'] = -np.sqrt(2)*jevmats['C21']
 
 
 matnames = set(jevmats.keys())
-matnames.update(sebmats.keys())
+matnames.update(mikemats.keys())
 matnames = list(matnames)
 matnames.sort()
 
 for m in matnames:
     if not(m in jevmats):
         print("Jev missing %s"%(m))
-    if not(m in sebmats):
-        print("Seb missing %s"%(m))
-    if (m in jevmats) and (m in sebmats):
-        ms = np.matrix(sebmats[m])
+    if not(m in mikemats):
+        print("Mike missing %s"%(m))
+    if (m in jevmats) and (m in mikemats):
+        ms = np.matrix(mikemats[m])
         mj = np.matrix(jevmats[m])
         assert(np.linalg.norm(ms-ms.H) < EPS)
         assert(np.linalg.norm(mj-mj.H) < EPS)
@@ -116,6 +155,8 @@ for m in matnames:
  #                                                                normofdiff))
 
 
+
+    
             
 # Read in a a set of crystal field parameters from Er:LaF3
 # dieke reads these from (incomplete) carnall89params.xls
