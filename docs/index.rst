@@ -1,6 +1,8 @@
 Welcome to Dieke's documentation!
 ======================================
 
+This package aims to be an easy to use and easy to install solution for crystal field calculations for the rare earths.  Very much a work in progress, treat results with caution.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

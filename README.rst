@@ -21,5 +21,7 @@ Crystal field calculations for the Rare Earths
 Features
 --------
 
-* Reads Crosswhite Fortran datafiles into python code
+* Reads Crosswhite Fortran datafiles into python code.
+
+* Still very much work in progress. Treat results with caution.
 
