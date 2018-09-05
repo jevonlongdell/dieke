@@ -15,23 +15,30 @@ __version__ = '0.2.0'
 
 
 class RareEarthIon:
-    def __init__(self, nf):
+    def __init__(self, nf,verbose=False):
+
+        self.N = factorial(14)//(factorial(nf)*factorial(14-nf))
+        self.N = int(self.N+0.5)
+        self.nf = nf
+
+        if(verbose):
+            self.verbose = True
+        else:
+            self.verbose = False
+
         (self.LStermLabels,
          self.Uk,
          self.LSJlevelLabels,
          self.freeion_mat,
          self.LSJmJstateLabels,
          self.FreeIonMatrix,
-         self.Ckq) = makeMatricies(nf)
-        self.N = factorial(14)//(factorial(nf)*factorial(14-nf))
-        self.N = int(self.N+0.5)
-        self.nf = nf
+         self.Ckq) = makeMatricies(nf, self.verbose)
 
         L = np.zeros((self.N, self.N))
         S = np.zeros((self.N, self.N))
         J = np.zeros((self.N, self.N))
         mJ = np.zeros((self.N, self.N))
-        sen = np.zeros((self.N,self.N))
+        sen = np.zeros((self.N, self.N))
 
         for ii in range(self.N):
             L[ii, ii] = LfromStateLabel(self.LSJmJstateLabels[ii])
@@ -103,7 +110,7 @@ class IsotropicRareEarthIon:
         return self.N
 
 
-def makeMatricies(nf):
+def makeMatricies(nf,verbose=False):
     """ 
     Returns set of matricies from which crystal field Hamiltonians can be made.
 
@@ -149,10 +156,30 @@ def makeMatricies(nf):
     -------
     See ``crystal_field_example.py`` in the examples folder
     """
+
+    if verbose:
+        print("Reading crosswhite data")
     (LSJlevels, freeion_mat, LSterms, Uk, V) = read_crosswhite(nf)
+    if verbose:
+        print("Making Free Ion Matricies")
     (LSJmJstates, full_freeion_mat) = makeFullFreeIonOperators(
                                               nf, LSJlevels, freeion_mat)
-    Ckq = makeCkq(LSJmJstates, LSJlevels, LSterms, Uk, nf)
+    if verbose:
+        print("Making Crystal Field Matricies")
+
+    Ckq = {}
+    kqvals = []
+    for k in [2, 4, 6]:
+        for q in range(-k, k+1):
+            kqvals.append((k, q))
+
+            Ckq = dict(zip(kqvals,
+                           map(lambda x: makeCkq(x,
+                                                 LSJmJstates,
+                                                 LSJlevels,
+                                                 LSterms,
+                                                 Uk, nf), kqvals)))
+
     return (LSterms, Uk, LSJlevels, freeion_mat, LSJmJstates,
             full_freeion_mat, Ckq)
 
@@ -315,7 +342,8 @@ class WignerDict:
 
 
 # Equation 1.37 from Guokui and Liu
-def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
+def makeCkq(kqtuple,LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
+    print('ok then')
     wignerlookup = WignerDict()
     numstates = len(LSJmJstates)
     leveldict = {}
@@ -326,6 +354,8 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
     multiplet_size = []
     multiplet_start = []
 
+    print('was here')
+    
     count = 0
     for lvl in LSJlevels:
         twiceJ = int(JfromLevelLabel(lvl)*2+0.5)
@@ -342,50 +372,50 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
                 assert(LSJmJstates[count] == '%s %3d/2' % (lvl, twicemJ))
             count = count+1
 
-    Ckq = {}
-    for k in [2, 4, 6]:
-        lCkl = reducedCk(3, k, 3)
-        for q in range(-k, k+1):
-            # print("Making C%d%d matrix." % (k, q))
-#            Ckq[(k, q)]
-            cmatrix = np.matrix(np.zeros([numstates, numstates],dtype='complex128'))
+    (k,q) = kqtuple
 
-            for i in range(len(LSJlevels)):
-                istart = multiplet_start[i]
-                isize = multiplet_size[i]
-                # istop = istart+isize # commented this out because never used?
-                for j in range(len(LSJlevels)):
-                    if abs(singlyreducedUk[k//2-1, i, j]) < 1e-10:
-                        continue
-                    jstart = multiplet_start[j]
-                    jsize = multiplet_size[j]
-                    # jstop = jstart+jsize #commented out because never used?
-                    twiceJ = isize-1
-                    J = twiceJ/2.0
-                    twiceJprime = jsize-1
-                    # Jprime = twiceJprime/2.0 #never used?
-                    for ii in range(isize):  # ii = inner i
-                        twicemJ = -twiceJ+2*ii
-                        mJ = -J + ii
-                        for ij in range(jsize):
-                            twicemJprime = -twiceJprime + 2*ij
-                            # mJprime=-Jprime+ij#commented because never used?
-                            threejtemp = wignerlookup.w3j(twiceJ, 2*k,
-                                                          twiceJprime,
-                                                          -twicemJ, 2*q,
-                                                          twicemJprime)
-                            if(threejtemp != 0):
-                                cmatrix[istart+ii, jstart+ij] = \
-                                    (-1)**(J-mJ)*threejtemp * \
-                                    singlyreducedUk[k//2-1, i, j]*lCkl
-            if nf > 7:
-                cmatrix = -cmatrix
-            if q != 0:
-                Ckq[(k, q)] = cmatrix + cmatrix.H  # add hermitian conjugate force hermitian
-            else:
-                Ckq[(k, q)] = cmatrix
-            
-    return Ckq
+            # print("Making C%d%d matrix." % (k, q))
+            #            Ckq[(k, q)]
+    lCkl = reducedCk(3, k, 3)
+    cmatrix = np.matrix(np.zeros([numstates, numstates],dtype='complex128'))
+
+    print('was here')
+    
+    for i in range(len(LSJlevels)):
+        istart = multiplet_start[i]
+        isize = multiplet_size[i]
+        # istop = istart+isize # commented this out because never used?
+        for j in range(len(LSJlevels)):
+            if abs(singlyreducedUk[k//2-1, i, j]) < 1e-10:
+                continue
+            jstart = multiplet_start[j]
+            jsize = multiplet_size[j]
+            # jstop = jstart+jsize #commented out because never used?
+            twiceJ = isize-1
+            J = twiceJ/2.0
+            twiceJprime = jsize-1
+            # Jprime = twiceJprime/2.0 #never used?
+            for ii in range(isize):  # ii = inner i
+                twicemJ = -twiceJ+2*ii
+                mJ = -J + ii
+                for ij in range(jsize):
+                    twicemJprime = -twiceJprime + 2*ij
+                    # mJprime=-Jprime+ij#commented because never used?
+                    threejtemp = wignerlookup.w3j(twiceJ, 2*k,
+                                                  twiceJprime,
+                                                  -twicemJ, 2*q,
+                                                  twicemJprime)
+                    if(threejtemp != 0):
+                        cmatrix[istart+ii, jstart+ij] = \
+                            (-1)**(J-mJ)*threejtemp * \
+                            singlyreducedUk[k//2-1, i, j]*lCkl
+    if nf > 7:
+        cmatrix = -cmatrix
+    if q != 0:
+        cmatrix = cmatrix + cmatrix.H  # add hermitian conjugate
+    return cmatrix
+
+
 
 
 # takes free ion operators defined over LSJ levels
