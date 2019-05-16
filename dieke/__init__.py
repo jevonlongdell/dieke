@@ -1,6 +1,7 @@
 import numpy as np
 #from .wigner import Wigner6j, Wigner3j
-from sympy.physics.wigner import wigner_3j, wigner_6j
+#from sympy.physics.wigner import wigner_3j, wigner_6j
+from njsymbols import wigner_3j, wigner_6j
 from scipy.misc import factorial
 from fractions import Fraction
 from .sljcalc import tmagmomval
@@ -177,6 +178,29 @@ def readLaF3params(nf):
         p['P6'] = 0.1*p['P2']
     return p
 
+def readErYSOparams(nf):
+    # print(__file__)
+    pd = pandas.read_excel(os.path.join(__path__[0], 'horvarth18params.xls'),
+                           skiprows=2).set_index('param')
+    RareEarths = ['La', 'Ce', 'Pr', 'Nd', 'Pm',
+                  'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho',
+                  'Er', 'Tm', 'Yb']
+    p = {}
+    re = RareEarths[nf]
+    for k in pd[re].keys():
+        if isinstance(pd[re][k], unicode):
+            p[k] = complex(str(pd[re][k]))
+        elif not np.isnan(pd[re][k]):
+           p[k] = pd[re][k]
+        if 'M0' in p:
+           p['M2'] = 0.56*p['M0']
+           p['M4'] = 0.31*p['M0']
+        if 'P2' in p:
+           p['P4'] = 0.5*p['P2']
+           p['P6'] = 0.1*p['P2']
+    return p
+
+
 #######################################################
 # Functions to read state labels and return quantum numbers
 #######################################################
@@ -341,7 +365,7 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
             else:
                 assert(LSJmJstates[count] == '%s %3d/2' % (lvl, twicemJ))
             count = count+1
-
+        
     Ckq = {}
     for k in [2, 4, 6]:
         lCkl = reducedCk(3, k, 3)
@@ -349,11 +373,11 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
             # print("Making C%d%d matrix." % (k, q))
 #            Ckq[(k, q)]
             cmatrix = np.matrix(np.zeros([numstates, numstates],dtype='complex128'))
-
             for i in range(len(LSJlevels)):
                 istart = multiplet_start[i]
                 isize = multiplet_size[i]
                 # istop = istart+isize # commented this out because never used?
+#                rowcount_test = rowcount_test + isize
                 for j in range(len(LSJlevels)):
                     if abs(singlyreducedUk[k//2-1, i, j]) < 1e-10:
                         continue
@@ -380,11 +404,9 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
                                     singlyreducedUk[k//2-1, i, j]*lCkl
             if nf > 7:
                 cmatrix = -cmatrix
-            if q != 0:
-                Ckq[(k, q)] = cmatrix + cmatrix.H  # add hermitian conjugate force hermitian
-            else:
-                Ckq[(k, q)] = cmatrix
-            
+        
+            Ckq[(k, q)] = cmatrix
+#            print("ROWCOUNT TEST = %s" %rowcount_test)
     return Ckq
 
 
@@ -411,7 +433,6 @@ def makeFullFreeIonOperators(nf, LSJlevels, fi_mat):
         multiplet_start.append(count)
         count = count+twiceJ+1
         multiplet_size.append(twiceJ+1)
-
         for twicemJ in twicemJvals:
             if (twiceJ % 2) == 0:
                 LSJmJstates.append('%s %3d  ' % (lvl, twicemJ/2))
@@ -501,6 +522,7 @@ def read_crosswhite(nf):
     reduced_tensor_file = 'data/f%dnm.dat' % (7-abs(7-nf))
     reduced_tensor_file = os.path.join(__path__[0], reduced_tensor_file)
     f = open(reduced_tensor_file, 'r')
+    
     # Read first line
     line = f.readline().split()
     line = list(map(int, line))
@@ -655,4 +677,5 @@ def read_crosswhite(nf):
                       np.diag(np.diag(fi_mat[key]))
     # Why 1000 indeed ...
     fi_mat['ALPHA'] = 1000*fi_mat['.01ALPH']
+    
     return (LSJlevels, fi_mat, LSterms, Uk, V)

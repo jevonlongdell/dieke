@@ -40,6 +40,9 @@ except FileNotFoundError:
     Er = dieke.RareEarthIon(nf)
     pickle.dump(Er, gzip.open('erbium.dat.gz', 'wb'))
 
+#Er = dieke.RareEarthIon(nf)
+#pickle.dump(Er, gzip.open('erbium.dat.gz', 'wb'))
+
 
 jevmats = Er.FreeIonMatrix
 # Add the crystal field matricies to my dict
@@ -114,7 +117,6 @@ while True:
     mikemats[name] = m
 
 
-
 matnames = set(jevmats.keys())
 matnames.update(mikemats.keys())
 matnames = list(matnames)
@@ -129,7 +131,7 @@ for m in matnames:
         ms = np.matrix(mikemats[m])
         mj = np.matrix(jevmats[m])
         assert(np.linalg.norm(ms-ms.H) < EPS)
-        assert(np.linalg.norm(mj-mj.H) < EPS)
+#        assert(np.linalg.norm(mj-mj.H) < EPS)
         normofdiff = np.linalg.norm(ms-mj)/np.linalg.norm(mj)
         if (normofdiff > EPS):
             # print("Matricies differ for %s, norm of diff = %g" % (m,
@@ -155,19 +157,34 @@ for m in matnames:
  #                                                                normofdiff))
 
 
+##  TESTING CMatrix C20
+ckey = 'C20'
+print('Testing %s' %ckey)
+for ii in range(len(jevmats[ckey])):
+    if not np.allclose(jevmats[ckey][ii],mikemats[ckey][ii]):
+            print('False for row %s' %(ii))
 
-    
-            
+
+# Scanning row 187
+rowscan = 186
+for ii in range(len(jevmats[ckey])):
+    if not np.allclose(jevmats[ckey][rowscan,ii],mikemats[ckey][rowscan,ii]):
+            print('False for %s, %s' %(rowscan, ii))
+
+# Testing Hermitian stuff
+ckeys = ['C20', 'C21', 'C22', 'C40', 'C41', 'C42', 'C43', 'C44', 'C60', 'C61', 'C62', 'C63', 'C64', 'C65', 'C66']  
+for ckey in ckeys:
+    mike_test = np.matrix(mikemats[ckey])
+    if np.linalg.norm(herm_test-herm_test.H) < EPS:
+        print("Mikes %s is Hermitian"% ckey)
+    else:
+        print("Mikes %s is not Hermitian"% ckey)
+
+
+
 # Read in a a set of crystal field parameters from Er:LaF3
 # dieke reads these from (incomplete) carnall89params.xls
 cfparams = dieke.readLaF3params(nf)
-
-
-
-# Read in a a set of crystal field parameters from Er:LaF3
-# dieke reads these from (incomplete) carnall89params.xls
-cfparams = dieke.readLaF3params(nf)
-
 
 #change most of the parameters to those in eryso_cf paper
 #leave some from carnall89
