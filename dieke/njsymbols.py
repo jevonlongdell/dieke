@@ -24,7 +24,9 @@
 
 from __future__ import division
 import numpy as np
-from scipy.misc import factorial
+# from scipy.misc import factorial
+from scipy.special import factorial
+
 from math import fsum
 
 
@@ -145,8 +147,7 @@ def wigner_6j(a, b, c, d, e, f):
         xmin = max(a + b + c, a + e + f, d + b + f, d + e + c)
         xmax = min(a + b + d + e, b + c + e + f, c + a + f + d)
         xlist = np.arange(xmin, xmax + 1)
-
-        result = pre_fact * fsum([(complex(-1)**x * factorial(x + 1)/(factorial(x -
+        result = pre_fact * fsum([((-1)**x * factorial(x + 1)/(factorial(x -
             a - b -c) * factorial(x - a - e - f) * factorial(x - d - b - f) *
             factorial(x - d - e - c) * factorial(a + b + d + e - x) *
             factorial(b + c + e + f - x) * factorial(c + a + f + d - x))) for x
