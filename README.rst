@@ -23,5 +23,5 @@ Features
 
 * Reads Crosswhite Fortran datafiles into python code.
 
-* Still very much work in progress. Treat results with caution.
+* Still work in progress. Treat results with caution.
 

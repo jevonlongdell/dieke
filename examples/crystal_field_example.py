@@ -36,122 +36,27 @@ for k in cfparams.keys():
         print("Adding free ion parameter %s\n" % (k))
         H0 = H0+cfparams[k]*Pr.FreeIonMatrix[k]
 
-## Add in the crystal field terms and diagonalise the result
-#H = H0
-#for k in [2, 4, 6]:
-#    for q in range(0, k+1):
-#        if 'B%d%d' % (k, q) in cfparams:
-#            if q == 0:
-#                H = H+cfparams['B%d%d' % (k, q)]*Pr.Cmatrix(k, q)
-#                print("adding in B %d %d \t = %d"%(k, q, cfparams['B%d%d' % (k, q)]))
-#            else:
-#                H = H+cfparams['B%d%d' % (k, q)]*Pr.Cmatrix(k, q)
-#                print("adding in B %d %d \t = %d"%(k, q, cfparams['B%d%d' % (k, q)]))
-#                H = H+((-1)**q)*np.conj(cfparams['B%d%d' % (k, q)]) \
-#                    * Pr.Cmatrix(k, -q)
-#                print("adding in B %d %d \t = %d"%(k, -q, ((-1)**q)*np.conj(cfparams['B%d%d' % (k, q)])))
-#(evals, evects) = np.linalg.eig(H)
-#E0 = np.min(evals)
-#calc_nrg_levels = np.sort(evals-E0)
-
-# TESTING Using Hermitian matrices
-Omega = {}
-for k in [2, 4, 6]:
-    for q in range(0, k+1):
-        if 'B%d%d' % (k, q) in cfparams:
-            if q == 0:
-                label = "O%d%d" % (k,q)
-                Omega[label] = Pr.Cmatrix(k, q) 
-            else:
-                label_pos = "O%d%d" % (k,q)
-                label_neg = "O%d%d" % (k,-q)
-                Omega[label_pos] = Pr.Cmatrix(k, q) + ((-1)**q)*Pr.Cmatrix(k,-q)
-                Omega[label_neg] = complex(0,1)*(Pr.Cmatrix(k, -q) - ((-1)**q)*Pr.Cmatrix(k,q))
+# Add in the crystal field terms and diagonalise the result
 
 H = H0
 for k in [2, 4, 6]:
     for q in range(0, k+1):
         if 'B%d%d' % (k, q) in cfparams:
             if q == 0:
-                H = H+cfparams['B%d%d' % (k, q)]*Omega['O%d%d' % (k, q)]
-                print("adding in B %d %d \t = %d"%(k, q, cfparams['B%d%d' % (k, q)]))
+                H = H+cfparams['B%d%d' % (k, q)]*Pr.Cmatrix(k, q)
             else:
-                H = H+cfparams['B%d%d' % (k, q)]*Omega['O%d%d' % (k, q)]
-                print("adding in B %d %d \t = %d"%(k, q, cfparams['B%d%d' % (k, q)]))
-                
-                H = H+((-1)**q)*np.conj(cfparams['B%d%d' % (k, q)]) \
-                    * Omega['O%d%d' % (k, -q)]
-                print("adding in B %d %d \t = %d"%(k, -q, ((-1)**q)*np.conj(cfparams['B%d%d' % (k, q)])))
+                Bkq = cfparams['B%d%d' % (k, q)]
+                Bkmq = (-1)**q*np.conj(Bkq)  # B_{k,-q}
+                Ckq = Pr.Cmatrix(k, q)
+                Ckmq = Pr.Cmatrix(k, -q)
+                # See page 44, eq 3.1 of the crystal field handbook
+                H = H + Bkq*Ckq + Bkmq*Ckmq
+
+
 (evals, evects) = np.linalg.eig(H)
 E0 = np.min(evals)
 calc_nrg_levels = np.sort(evals-E0)
 
-
-## TESTING change in cf params
-#
-#H = H0
-#for k in [2, 4, 6]:
-#    for q in range(0, k+1):
-#        if 'B%d%d' % (k, q) in cfparams:
-#            if q == 0:
-#                H = H+cfparams['B%d%d' % (k, q)]*Pr.Cmatrix(k, q)
-#            else:
-#                Bkq = cfparams['B%d%d' % (k, q)]
-#                Bknegq = 1/((-1)**q)*Bkq
-#                Bkq_hat = complex(Bkq,Bknegq)
-#                Bknegq_hat = 1/((-1)**q)*np.conj(Bkq_hat)
-#                print('B%d%d hat = %d + j%d' % (k, q, np.real(Bkq_hat),np.imag(Bkq_hat)))
-#                H = H+ Bkq_hat*Pr.Cmatrix(k, q)
-#                H = H+ Bknegq_hat*Pr.Cmatrix(k,-q)
-#(evals, evects) = np.linalg.eig(H)
-#E0 = np.min(evals)
-#calc_nrg_levels = np.sort(evals-E0)
-#
-#
 # Print out the 20 lowest enery levels
 for k in range(20):
     print(np.real(calc_nrg_levels[k]))
-
-
-## Hermition tests
-#    
-#EPS=3e-7
-#Hcf = np.zeros([numLSJmJ, numLSJmJ])
-#for k in [2, 4, 6]:
-#    for q in range(0, k+1):
-#        if 'B%d%d' % (k, q) in cfparams:
-#            if q == 0:
-#                matrix_add = cfparams['B%d%d' % (k, q)]*Pr.Cmatrix(k, q)
-#                
-#                # Checking if matrix is hermitian
-#                if np.linalg.norm(matrix_add-matrix_add.H) < EPS:
-#                    print("B %d %d \t is Hermitian"%(k, q))
-#                else:
-#                    print("B %d %d \t not Hermitian"%(k, q))
-#                
-#                Hcf = Hcf + matrix_add
-#            else:
-#                matrix_add_1 = cfparams['B%d%d' % (k, q)]*Pr.Cmatrix(k, q)
-#                matrix_add_2 = ((-1)**q)*np.conj(cfparams['B%d%d' % (k, q)]) \
-#                    * Pr.Cmatrix(k, -q)
-#                # Checking if Hermitian
-#                if np.linalg.norm(matrix_add_1 - matrix_add_1.H) < EPS:
-#                    print("B %d %d \t is Hermitian"%(k, q))
-#                else:
-#                    print("B %d %d \t not Hermitian"%(k, q))
-#                
-#                if np.linalg.norm(matrix_add_2 - matrix_add_2.H) < EPS:
-#                    print("B %d %d \t is Hermitian"%(k, -q))
-#                else:
-#                    print("B %d %d \t not Hermitian"%(k, -q))
-#                
-#                Hcf = Hcf+matrix_add_1 + matrix_add_2
-#                
-#                
-## Checking Hcf hermitian
-#                
-#if np.linalg.norm(Hcf - Hcf.H) < EPS:
-#    print("Hcf \t is Hermitian")
-#else:
-#    print("Hcf \t not Hermitian")
-    
