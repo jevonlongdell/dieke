@@ -2,7 +2,7 @@ import numpy as np
 #from .wigner import Wigner6j, Wigner3j
 #from sympy.physics.wigner import wigner_3j, wigner_6j
 from .njsymbols import wigner_3j, wigner_6j
-from scipy.misc import factorial
+from scipy.special import factorial
 from fractions import Fraction
 from .sljcalc import tmagmomval
 import pandas
