@@ -150,7 +150,7 @@ def test_ErYSO():
 
     print('    Jevon  Sebastian Difference')
     for k in range(len(seb_levels)):
-        print("%9.1f %9.1f %6.1f"%(calc_nrg_levels[k],seb_levels[k],np.real(calc_nrg_levels[k]) - seb_levels[k]))
+        print("%9.1f %9.1f %6.1f"%(np.real(calc_nrg_levels[k]),seb_levels[k],np.real(calc_nrg_levels[k]) - seb_levels[k]))
     
 
     

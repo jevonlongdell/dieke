@@ -55,7 +55,7 @@ cfparams['Q'] = 0.0716 #this is ignored
 H0 = np.zeros([numLSJmJ, numLSJmJ])
 for k in cfparams.keys():
     if k in Er.FreeIonMatrix:
-        print("Adding free ion parameter %s\n" % (k))
+        print("Adding free ion parameter \'%s\' = %g" % (k, cfparams[k]))
         H0 = H0+cfparams[k]*Er.FreeIonMatrix[k]
 
 # Add in the crystal field terms and diagonalise the result
@@ -66,7 +66,6 @@ for k in [2, 4, 6]:
         if 'B%d%d' % (k, q) in cfparams:
             if q == 0:
                 H = H+cfparams['B%d%d' % (k, q)]*Er.Cmatrix(k, q)
-                print("adding in B %d %d \t = %d"%(k, q, cfparams['B%d%d' % (k, q)]))
             else:
                 Bkq = cfparams['B%d%d' % (k, q)]
                 Bkmq = (-1)**q*np.conj(Bkq)
@@ -79,7 +78,20 @@ for k in [2, 4, 6]:
 (evals, evects) = np.linalg.eig(H)
 E0 = np.min(evals)
 calc_nrg_levels = np.sort(evals-E0)
+calc_nrg_levels = calc_nrg_levels[::2]  # ignore every second element   
 
-# Print out the 20 lowest enery levels
-for k in range(20):
-    print(np.real(calc_nrg_levels[k]))
+#energy levels from Sebastians paper 
+seb_levels = [15, 47, 75, 130, 199, 388, 462, 508,
+              6522, 6560, 6583, 6640, 6777, 6833, 6867,
+              10206, 10236, 10267, 10339, 10381, 10398]
+seb_levels = np.array(seb_levels)
+E0seb = np.min(seb_levels)
+seb_levels = seb_levels-E0seb
+
+
+print('\n    Jevon  Sebastian Difference')
+for k in range(len(seb_levels)):
+    print("%9.1f %9.1f %6.1f"%(
+        np.real(calc_nrg_levels[k]),
+        seb_levels[k],
+        np.real(calc_nrg_levels[k]) - seb_levels[k]))
