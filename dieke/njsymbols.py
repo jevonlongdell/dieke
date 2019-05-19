@@ -27,6 +27,8 @@ import numpy as np
 # from scipy.misc import factorial
 from scipy.special import factorial
 
+
+
 from math import fsum
 
 
@@ -86,13 +88,15 @@ def wigner_3j(j1, j2, j3, m1, m2, m3):
         xmin = max(0, j3 - j2 - m1)
         xmax = min(j3 + m3, j1 - m1)
         xlist = np.arange(xmin, xmax + 1)
-        result = phase * pre_fact * fsum([((-1)**(j1 - m1 - x) * (factorial(j1 
-            + m1 + x) * factorial(j3 + j2 - m1 - x))/(factorial(x) *
-            factorial(j3 + m3 - x) * factorial(j1 - m1 - x) * factorial(j2 - j3
-            + m1 + x))) for x in xlist])
+        #        try:
+        result = phase * pre_fact * fsum([((-1)**(j1 - m1 - x) * (factorial(j1 + m1 + x) * factorial(j3 + j2 - m1 - x)) /(factorial(x) * factorial(j3 + m3 - x) * factorial(j1 - m1 - x) * factorial(j2 - j3 + m1 + x)))  for x in xlist])
+#        except:
+#            print(xlist, j1, j2,j3, m1,m2,m3)
+#            import pdb; pdb.set_trace()
     else:
         result = 0
 
+    
     return(result)
 
 

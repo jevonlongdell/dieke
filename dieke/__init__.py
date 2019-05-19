@@ -1,12 +1,15 @@
 import numpy as np
 #from .wigner import Wigner6j, Wigner3j
-#from sympy.physics.wigner import wigner_3j, wigner_6j
+from sympy.physics.wigner import wigner_3j as sympy_wigner_3j
+from sympy.physics.wigner import wigner_6j as sympy_wigner_6j
 from .njsymbols import wigner_3j, wigner_6j
 from scipy.special import factorial
 from fractions import Fraction
 from .sljcalc import reducedL, reducedS, istriad
 import pandas
 import os
+
+#np.seterr(all='raise')
 
 """Top-level package for Dieke."""
 
@@ -62,9 +65,9 @@ class RareEarthIon:
             twiceL = int(2*self.FreeIonMatrix['L'][ii, ii]+0.5)
             twiceS = int(2*self.FreeIonMatrix['S'][ii, ii]+0.5)
             twiceJ = int(2*self.FreeIonMatrix['J'][ii, ii]+0.5)
-            twicemJ = int(2*self.FreeIonMatrix['mJ'][ii, ii]+0.5)
+            twicemJ = int(round(2*self.FreeIonMatrix['mJ'][ii, ii]))
             cwidx = int(self.FreeIonMatrix['CWIDX'][ii, ii]+0.5)
-            # Todo: Could make this twice as fast by only doing on triangle
+            # Todo: Could make this twice as fast by only doing onw triangle
             for jj in range(self.N):
                 twiceLp = int(2*self.FreeIonMatrix['L'][jj, jj]+0.5)
                 twiceSp = int(2*self.FreeIonMatrix['S'][jj, jj]+0.5)
@@ -372,6 +375,14 @@ class WignerDict:
         else:
             w3jtemp = wigner_3j(twicej1/2.0, twicej2/2.0, twicej3/2.0,
                                 twicem1/2.0, twicem2/2.0, twicem3/2.0)
+            spw3j = sympy_wigner_3j(twicej1/2.0, twicej2/2.0, twicej3/2.0,
+                                twicem1/2.0, twicem2/2.0, twicem3/2.0)
+            try:
+                if not (np.abs(w3jtemp-spw3j)<1e-6):
+                    print("wigner3j error")
+            except:
+                import pdb; pdb.set_trace()
+                
             self.w3jdict[(wargs)] = w3jtemp
             return w3jtemp
 
