@@ -1,7 +1,8 @@
 import numpy as np
+## Alternatives for wigner symbols
 #from .wigner import Wigner6j, Wigner3j
-from sympy.physics.wigner import wigner_3j as sympy_wigner_3j
-from sympy.physics.wigner import wigner_6j as sympy_wigner_6j
+#from sympy.physics.wigner import wigner_3j as sympy_wigner_3j
+#from sympy.physics.wigner import wigner_6j as sympy_wigner_6j
 from .njsymbols import wigner_3j, wigner_6j
 from scipy.special import factorial
 from fractions import Fraction
@@ -9,7 +10,7 @@ from .sljcalc import reducedL, reducedS, istriad
 import pandas
 import os
 
-#np.seterr(all='raise')
+np.seterr(all='raise')
 
 """Top-level package for Dieke."""
 
@@ -28,7 +29,7 @@ class RareEarthIon:
          self.FreeIonMatrix,
          self.Ckq) = makeMatricies(nf)
         self.N = factorial(14)//(factorial(nf)*factorial(14-nf))
-        self.N = int(self.N+0.5)
+        self.N = int(round(self.N))
         self.nf = nf
 
         L = np.zeros((self.N, self.N))
@@ -62,18 +63,18 @@ class RareEarthIon:
         S1 = np.zeros((self.N, self.N), dtype=complex)
         Sminus1 = np.zeros((self.N, self.N), dtype=complex)
         for ii in range(self.N):
-            twiceL = int(2*self.FreeIonMatrix['L'][ii, ii]+0.5)
-            twiceS = int(2*self.FreeIonMatrix['S'][ii, ii]+0.5)
-            twiceJ = int(2*self.FreeIonMatrix['J'][ii, ii]+0.5)
+            twiceL = int(round(2*self.FreeIonMatrix['L'][ii, ii]))
+            twiceS = int(round(2*self.FreeIonMatrix['S'][ii, ii]))
+            twiceJ = int(round(2*self.FreeIonMatrix['J'][ii, ii]))
             twicemJ = int(round(2*self.FreeIonMatrix['mJ'][ii, ii]))
-            cwidx = int(self.FreeIonMatrix['CWIDX'][ii, ii]+0.5)
-            # Todo: Could make this twice as fast by only doing onw triangle
+            cwidx = int(round(self.FreeIonMatrix['CWIDX'][ii, ii]))
+            # Todo: Could make this twice as fast by only doing one triangle
             for jj in range(self.N):
-                twiceLp = int(2*self.FreeIonMatrix['L'][jj, jj]+0.5)
-                twiceSp = int(2*self.FreeIonMatrix['S'][jj, jj]+0.5)
-                twiceJp = int(2*self.FreeIonMatrix['J'][jj, jj]+0.5)
-                twicemJp = int(2*self.FreeIonMatrix['mJ'][jj, jj]+0.5)
-                cwidxp = int(self.FreeIonMatrix['CWIDX'][jj, jj]+0.5)
+                twiceLp = int(round(2*self.FreeIonMatrix['L'][jj, jj]))
+                twiceSp = int(round(2*self.FreeIonMatrix['S'][jj, jj]))
+                twiceJp = int(round(2*self.FreeIonMatrix['J'][jj, jj]))
+                twicemJp = int(round(2*self.FreeIonMatrix['mJ'][jj, jj]))
+                cwidxp = int(round(self.FreeIonMatrix['CWIDX'][jj, jj]))
                 if cwidx == cwidxp and twicemJ == twicemJp:
                     if twiceLp == twiceL and  twiceSp == twiceS:
                         # Use 4-3 from Wyborne's, "Spectroscopic Properties of
@@ -375,14 +376,13 @@ class WignerDict:
         else:
             w3jtemp = wigner_3j(twicej1/2.0, twicej2/2.0, twicej3/2.0,
                                 twicem1/2.0, twicem2/2.0, twicem3/2.0)
-            spw3j = sympy_wigner_3j(twicej1/2.0, twicej2/2.0, twicej3/2.0,
-                                twicem1/2.0, twicem2/2.0, twicem3/2.0)
-            try:
-                if not (np.abs(w3jtemp-spw3j)<1e-6):
-                    print("wigner3j error")
-            except:
-                import pdb; pdb.set_trace()
-                
+#            spw3j = sympy_wigner_3j(twicej1/2.0, twicej2/2.0, twicej3/2.0,
+#                                twicem1/2.0, twicem2/2.0, twicem3/2.0)
+            # try:
+            #     if not (np.abs(w3jtemp-spw3j)<1e-6):
+            #         print("wigner3j error")
+            # except:
+            #     import pdb; pdb.set_trace()               
             self.w3jdict[(wargs)] = w3jtemp
             return w3jtemp
 
@@ -401,7 +401,7 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
 
     count = 0
     for lvl in LSJlevels:
-        twiceJ = int(JfromLevelLabel(lvl)*2+0.5)
+        twiceJ = int(round(JfromLevelLabel(lvl)*2))
         twicemJvals = range(-twiceJ, twiceJ+1, 2)
         # the +1 in line above is only to make sure mJ
         # goes between -J and J inclusive
@@ -463,7 +463,7 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
 # and epands them to those defined in terms of LSJmJ states
 def makeFullFreeIonOperators(nf, LSJlevels, fi_mat):
     numstates = factorial(14)//(factorial(nf)*factorial(14-nf))
-    numstates = int(numstates+0.5)
+    numstates = int(numstates)
     full_fi_mat = {}
 
     for key in fi_mat.keys():
@@ -474,7 +474,7 @@ def makeFullFreeIonOperators(nf, LSJlevels, fi_mat):
     LSJmJstates = []
     count = 0
     for lvl in LSJlevels:
-        twiceJ = int(JfromLevelLabel(lvl)*2+0.5)
+        twiceJ = int(round(JfromLevelLabel(lvl)*2))
         twicemJvals = range(-twiceJ, twiceJ+1, 2)
         # the in the line above is +1 is only to make
         # sure mJ goes between -J and J inclusive
