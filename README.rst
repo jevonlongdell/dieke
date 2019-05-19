@@ -4,7 +4,7 @@ Dieke
 .. image:: https://img.shields.io/pypi/v/dieke.svg
         :target: https://pypi.python.org/pypi/dieke
 
-.. image:: https://img.shields.io/travis/jevonlongdell/dieke.svg?branch=master
+.. image:: https://travis-ci.org/jevonlongdell/dieke.svg?branch=master
         :target: https://travis-ci.org/jevonlongdell/dieke
 
 .. image:: https://readthedocs.org/projects/dieke/badge/?version=latest
