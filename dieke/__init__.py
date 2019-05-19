@@ -1,6 +1,8 @@
 import numpy as np
-from .wigner import Wigner6j, Wigner3j
-from scipy.misc import factorial
+#from .wigner import Wigner6j, Wigner3j
+#from sympy.physics.wigner import wigner_3j, wigner_6j
+from .njsymbols import wigner_3j, wigner_6j
+from scipy.special import factorial
 from fractions import Fraction
 from .sljcalc import reducedL, reducedS, istriad
 import pandas
@@ -10,7 +12,7 @@ import os
 
 __author__ = """Jevon Longdell"""
 __email__ = 'jevon.longdell@gmail.com'
-__version__ = '0.1.1'
+__version__ = '0.3.0'
 
 
 class RareEarthIon:
@@ -24,6 +26,7 @@ class RareEarthIon:
          self.Ckq) = makeMatricies(nf)
         self.N = factorial(14)//(factorial(nf)*factorial(14-nf))
         self.N = int(self.N+0.5)
+        self.nf = nf
 
         L = np.zeros((self.N, self.N))
         S = np.zeros((self.N, self.N))
@@ -188,7 +191,7 @@ def makeMatricies(nf):
     (LSJlevels, freeion_mat, LSterms, Uk, V) = read_crosswhite(nf)
     (LSJmJstates, full_freeion_mat) = makeFullFreeIonOperators(
                                               nf, LSJlevels, freeion_mat)
-    Ckq = makeCkq(LSJmJstates, LSJlevels, LSterms, Uk)
+    Ckq = makeCkq(LSJmJstates, LSJlevels, LSterms, Uk, nf)
     return (LSterms, Uk, LSJlevels, freeion_mat, LSJmJstates,
             full_freeion_mat, Ckq)
 
@@ -212,6 +215,29 @@ def readLaF3params(nf):
         p['P4'] = 0.5*p['P2']
         p['P6'] = 0.1*p['P2']
     return p
+
+def readErYSOparams(nf):
+    # print(__file__)
+    pd = pandas.read_excel(os.path.join(__path__[0], 'horvarth18params.xls'),
+                           skiprows=2).set_index('param')
+    RareEarths = ['La', 'Ce', 'Pr', 'Nd', 'Pm',
+                  'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho',
+                  'Er', 'Tm', 'Yb']
+    p = {}
+    re = RareEarths[nf]
+    for k in pd[re].keys():
+        if isinstance(pd[re][k], unicode):
+            p[k] = complex(str(pd[re][k]))
+        elif not np.isnan(pd[re][k]):
+           p[k] = pd[re][k]
+        if 'M0' in p:
+           p['M2'] = 0.56*p['M0']
+           p['M4'] = 0.31*p['M0']
+        if 'P2' in p:
+           p['P4'] = 0.5*p['P2']
+           p['P6'] = 0.1*p['P2']
+    return p
+
 
 #######################################################
 # Functions to read state labels and return quantum numbers
@@ -287,7 +313,7 @@ def CrosswhiteIndexfromStateLabel(statelabel):
 
 # <l||C^k||l'> eq 1.20 fro Guokui and Liu
 def reducedCk(l, k, lprime):
-    return (-1)**l*np.sqrt((2*l+1)*(2*lprime+1))*Wigner3j(
+    return ((-1)**l)*np.sqrt((2*l+1)*(2*lprime+1))*wigner_3j(
         l, k, lprime, 0, 0, 0)
 
 
@@ -313,7 +339,7 @@ def makesinglyreducedUk(doublyReducedUk, LSterms, LSJlevels):
                 # Equation1.37 from Guokui and Liu
                 singlyreducedUk[k_idx, i, j] = \
                     (-1)**(S+Lprime+J+k)*np.sqrt((2*J+1)*(2*Jprime+1)) * \
-                    Wigner6j(J, Jprime, k, Lprime, L, S) * \
+                    wigner_6j(J, Jprime, k, Lprime, L, S) * \
                     doublyReducedUk[k_idx, LStermdict[iterm],
                                     LStermdict[jterm]]
     return singlyreducedUk
@@ -337,21 +363,21 @@ class ReducedMagMomDict:
 
 class WignerDict:
     def __init__(self):
-        self.wdict = {}
+        self.w3jdict = {}
 
     def w3j(self, twicej1, twicej2, twicej3, twicem1, twicem2, twicem3):
         wargs = (twicej1, twicej2, twicej3, twicem1, twicem2, twicem3)
-        if wargs in self.wdict:
-                return self.wdict[wargs]
+        if wargs in self.w3jdict:
+                return self.w3jdict[wargs]
         else:
-            w3jtemp = Wigner3j(twicej1/2.0, twicej2/2.0, twicej3/2.0,
-                               twicem1/2.0, twicem2/2.0, twicem3/2.0)
-            self.wdict[(wargs)] = w3jtemp
+            w3jtemp = wigner_3j(twicej1/2.0, twicej2/2.0, twicej3/2.0,
+                                twicem1/2.0, twicem2/2.0, twicem3/2.0)
+            self.w3jdict[(wargs)] = w3jtemp
             return w3jtemp
 
 
 # Equation 1.37 from Guokui and Liu
-def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk):
+def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
     wignerlookup = WignerDict()
     numstates = len(LSJmJstates)
     leveldict = {}
@@ -377,18 +403,19 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk):
             else:
                 assert(LSJmJstates[count] == '%s %3d/2' % (lvl, twicemJ))
             count = count+1
-
+        
     Ckq = {}
     for k in [2, 4, 6]:
         lCkl = reducedCk(3, k, 3)
         for q in range(-k, k+1):
             # print("Making C%d%d matrix." % (k, q))
-            Ckq[(k, q)] = np.zeros([numstates, numstates])
-
+#            Ckq[(k, q)]
+            cmatrix = np.matrix(np.zeros([numstates, numstates],dtype='complex128'))
             for i in range(len(LSJlevels)):
                 istart = multiplet_start[i]
                 isize = multiplet_size[i]
                 # istop = istart+isize # commented this out because never used?
+#                rowcount_test = rowcount_test + isize
                 for j in range(len(LSJlevels)):
                     if abs(singlyreducedUk[k//2-1, i, j]) < 1e-10:
                         continue
@@ -410,9 +437,14 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk):
                                                           -twicemJ, 2*q,
                                                           twicemJprime)
                             if(threejtemp != 0):
-                                Ckq[(k, q)][istart+ii, jstart+ij] = \
+                                cmatrix[istart+ii, jstart+ij] = \
                                     (-1)**(J-mJ)*threejtemp * \
                                     singlyreducedUk[k//2-1, i, j]*lCkl
+            if nf > 7:
+                cmatrix = -cmatrix
+        
+            Ckq[(k, q)] = cmatrix
+#            print("ROWCOUNT TEST = %s" %rowcount_test)
     return Ckq
 
 
@@ -439,7 +471,6 @@ def makeFullFreeIonOperators(nf, LSJlevels, fi_mat):
         multiplet_start.append(count)
         count = count+twiceJ+1
         multiplet_size.append(twiceJ+1)
-
         for twicemJ in twicemJvals:
             if (twiceJ % 2) == 0:
                 LSJmJstates.append('%s %3d  ' % (lvl, twicemJ/2))
@@ -501,11 +532,35 @@ def read_crosswhite(nf):
     --------
     See ``free_ion_example.py`` in the examples folder.
 
-    """  
+    """
+
+    #dont actually use cross white files for Cerium
+    if nf==1:
+        LSterms = ['1 2F']
+        numLS = 1
+        Uk = np.zeros([3, numLS, numLS])
+        V = np.zeros([3, numLS, numLS])
+        Uk[0,0,0] = 1
+        Uk[1,0,0] = 1
+        Uk[2,0,0] = 1
+        V[0,0,0] = 1
+        V[1,0,0] = 1
+        V[2,0,0] = 1
+
+        fi_mat = {}  # a dictionary to hold our free ion matricies
+        # the key will be the name eg "F2" or "ZETA"
+        LSJlevels = ['1 2F  7/2', '1 2F  5/2']
+        #values from mike's notes
+        fi_mat['ZETA']= np.array([[1.5, 0], [0, -2.0]])
+        return (LSJlevels, fi_mat, LSterms, Uk, V)
+
+        ########################
+    
     # Use 14-nf for nf>7
     reduced_tensor_file = 'data/f%dnm.dat' % (7-abs(7-nf))
     reduced_tensor_file = os.path.join(__path__[0], reduced_tensor_file)
     f = open(reduced_tensor_file, 'r')
+    
     # Read first line
     line = f.readline().split()
     line = list(map(int, line))
@@ -658,6 +713,7 @@ def read_crosswhite(nf):
     for key in fi_mat.keys():
         fi_mat[key] = fi_mat[key]+np.transpose(fi_mat[key]) - \
                       np.diag(np.diag(fi_mat[key]))
-    # Who knows if this is the right way round?
-    fi_mat['ALPHA'] = 100*fi_mat['.01ALPH']
+    # Why 1000 indeed ...
+    fi_mat['ALPHA'] = 1000*fi_mat['.01ALPH']
+    
     return (LSJlevels, fi_mat, LSterms, Uk, V)

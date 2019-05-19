@@ -4,7 +4,7 @@ Dieke
 .. image:: https://img.shields.io/pypi/v/dieke.svg
         :target: https://pypi.python.org/pypi/dieke
 
-.. image:: https://img.shields.io/travis/jevonlongdell/dieke.svg
+.. image:: https://travis-ci.org/jevonlongdell/dieke.svg?branch=master
         :target: https://travis-ci.org/jevonlongdell/dieke
 
 .. image:: https://readthedocs.org/projects/dieke/badge/?version=latest
@@ -21,5 +21,7 @@ Crystal field calculations for the Rare Earths
 Features
 --------
 
-* Reads Crosswhite Fortran datafiles into python code
+* Reads Crosswhite Fortran datafiles into python code.
+
+* Still work in progress. Treat results with caution.
 
