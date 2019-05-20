@@ -9,6 +9,8 @@ from fractions import Fraction
 from .sljcalc import reducedL, reducedS, istriad
 import pandas
 import os
+from scipy.sparse import lil_matrix
+
 
 np.seterr(all='raise')
 
@@ -19,32 +21,35 @@ __email__ = 'jevon.longdell@gmail.com'
 __version__ = '0.3.0'
 
 
-def emptymatrix(n):
-    return np.mat(np.zeros((n,n)))
+def emptymatrix(n,type):
+    return lil_matrix((n,n),dtype=type)
+#    return np.mat(np.zeros((n,n)))
 
 
 
 class RareEarthIon:
     def __init__(self, nf):
         (self.LStermLabels,
-         self.Uk,
-         self.LSJlevelLabels,
-         self.freeion_mat,
-         self.LSJmJstateLabels,
-         self.FreeIonMatrix,
-         self.Ckq) = makeMatricies(nf)
+           self.Uk,
+           self.LSJlevelLabels,
+           self.freeion_mat,
+           self.LSJmJstateLabels,
+           self.FreeIonMatrix,
+           self.Ckq) = makeMatricies(nf)
         self.N = factorial(14)//(factorial(nf)*factorial(14-nf))
         self.N = int(round(self.N))
         self.nf = nf
 
-        L = emptymatrix(self.N)
-        S = emptymatrix(self.N)
-        J = emptymatrix(self.N)
-        mJ = emptymatrix(self.N)
+        L = emptymatrix(self.N, 'double')
+        S = emptymatrix(self.N, 'double')
+        J = emptymatrix(self.N, 'double')
+        mJ = emptymatrix(self.N, 'double')
+
+        
         # The index given in the crosswhite data files
         # to distinguish different terms that have the same
         # L and S
-        cwidx = np.zeros((self.N,self.N))
+        cwidx = emptymatrix(self.N, 'int')
 
         for ii in range(self.N):
             L[ii, ii] = LfromStateLabel(self.LSJmJstateLabels[ii])
@@ -61,12 +66,12 @@ class RareEarthIon:
 
         # Make zeeman operators
         wignerlookup = WignerDict()
-        L0 = emptymatrix(self.N)
-        L1 = emptymatrix(self.N)
-        Lminus1 = emptymatrix(self.N)
-        S0 = emptymatrix(self.N)
-        S1 = emptymatrix(self.N)
-        Sminus1 = emptymatrix(self.N)
+        L0 = emptymatrix(self.N, 'complex')
+        L1 = emptymatrix(self.N, 'complex')
+        Lminus1 = emptymatrix(self.N, 'complex')
+        S0 = emptymatrix(self.N, 'complex')
+        S1 = emptymatrix(self.N, 'complex')
+        Sminus1 = emptymatrix(self.N, 'complex')
         for ii in range(self.N):
             twiceL = int(round(2*self.FreeIonMatrix['L'][ii, ii]))
             twiceS = int(round(2*self.FreeIonMatrix['S'][ii, ii]))
@@ -142,9 +147,9 @@ class IsotropicRareEarthIon:
 
         self.N = len(self.LSJlevelLabels)
 
-        L = emptymatrix(self.N)
-        S = emptymatrix(self.N)
-        J = emptymatrix(self.N)
+        L = emptymatrix(self.N, 'double')
+        S = emptymatrix(self.N, 'double')
+        J = emptymatrix(self.N, 'double')
 
         for ii in range(self.N):
             L[ii, ii] = LfromLevelLabel(self.LSJlevelLabels[ii])
