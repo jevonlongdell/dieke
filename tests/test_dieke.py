@@ -16,16 +16,16 @@ def test_LS_commutation_relations():
     
     Re = dieke.RareEarthIon(2)  # Pr
 
-    L = Re.FreeIonMatrix['L']
-    Lx = Re.FreeIonMatrix['Lx']
-    Ly = Re.FreeIonMatrix['Ly']
-    Lz = Re.FreeIonMatrix['Lz']
-    S = Re.FreeIonMatrix['S']
-    Sx = Re.FreeIonMatrix['Sx']
-    Sy = Re.FreeIonMatrix['Sy']
-    Sz = Re.FreeIonMatrix['Sz']
+    L = Re.FreeIonMatrix['L'].A
+    Lx = Re.FreeIonMatrix['Lx'].A
+    Ly = Re.FreeIonMatrix['Ly'].A
+    Lz = Re.FreeIonMatrix['Lz'].A
+    S = Re.FreeIonMatrix['S'].A
+    Sx = Re.FreeIonMatrix['Sx'].A
+    Sy = Re.FreeIonMatrix['Sy'].A
+    Sz = Re.FreeIonMatrix['Sz'].A
     
-    J = Re.FreeIonMatrix['J']
+    J = Re.FreeIonMatrix['J'].A
     Jx = Lx+Sx
     Jy = Ly+Sy
     Jz = Lz+Sz
