@@ -103,6 +103,67 @@ def test_Pr_LaF3():
            < 1.0 )
            
     
+def test_Er_LaF3():
+    """
+    Tests that we give the same results as Carnall 1989 for Pr:LaF3
+    """
+
+    #energy levels from Carnall's paper
+    carnall_levels = [-22, 27, 92, 176, 193, 289, 375, 420,
+                      6612, 6637, 6686, 6699, 6732, 6771, 6830,
+                      10300, 10314, 10336, 10351, 10365, 10405]
+    carnall_levels = np.array(carnall_levels)
+    carnall_levels = carnall_levels -np.min(carnall_levels)
+    
+    nf = 11  # 11 f-electrons means we're dealing with Er
+    Er = dieke.RareEarthIon(nf)
+    cfparams = dieke.readLaF3params(nf)
+    
+    # Number of levels and states
+    numLSJ = Er.numlevels()
+    numLSJmJ = Er.numstates()
+
+    # Make a free-ion Hamiltonian
+    H0 = np.zeros([numLSJmJ, numLSJmJ])
+    for k in cfparams.keys():
+        if k in Er.FreeIonMatrix:
+            H0 = H0+cfparams[k]*Er.FreeIonMatrix[k]
+
+    # Add in the crystal field terms 
+    H = H0
+    for k in [2, 4, 6]:
+        for q in range(0, k+1):
+            if 'B%d%d' % (k, q) in cfparams:
+                if q == 0:
+                    H = H+cfparams['B%d%d' % (k, q)]*Er.Cmatrix(k, q)
+                else:
+                    Bkq = cfparams['B%d%d' % (k, q)]
+                    Bkmq = (-1)**q*np.conj(Bkq)  # B_{k,-q}
+                    Ckq = Er.Cmatrix(k, q)
+                    Ckmq = Er.Cmatrix(k, -q)
+                    # See page 44, eq 3.1 of the crystal field handbook
+                    H = H + Bkq*Ckq + Bkmq*Ckmq
+
+
+
+    # Diagonalise the result
+    (evals, evects) = np.linalg.eig(H)
+    E0 = np.min(evals)
+    calc_nrg_levels = np.sort(evals-E0)
+    calc_nrg_levels = calc_nrg_levels[::2]
+    
+    print('    Jevon  Carnall  Difference')
+    for k in range(len(carnall_levels)):
+        print("%9.1f %9.1f %6.1f"%(np.real(calc_nrg_levels[k]),carnall_levels[k],np.real(calc_nrg_levels[k]) - carnall_levels[k]))
+
+
+
+    # Assert that they all agree within 1.1 wave number
+    assert(np.max(np.abs(
+        calc_nrg_levels[0:len(carnall_levels)]-carnall_levels))
+           < 1.1 )
+           
+    
 
 
 def test_ErYSO():
