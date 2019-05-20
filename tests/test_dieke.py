@@ -7,6 +7,44 @@ import pytest
 # from multiprocessing import Pool
 import numpy as np
 import dieke
+from numpy.linalg import norm
+
+
+def test_LS_commutation_relations():
+  
+    eps = 1e-7
+    
+    Re = dieke.RareEarthIon(2)  # Pr
+
+    L = Re.FreeIonMatrix['L']
+    Lx = Re.FreeIonMatrix['Lx']
+    Ly = Re.FreeIonMatrix['Ly']
+    Lz = Re.FreeIonMatrix['Lz']
+    S = Re.FreeIonMatrix['S']
+    Sx = Re.FreeIonMatrix['Sx']
+    Sy = Re.FreeIonMatrix['Sy']
+    Sz = Re.FreeIonMatrix['Sz']
+    
+    J = Re.FreeIonMatrix['J']
+    Jx = Lx+Sx
+    Jy = Ly+Sy
+    Jz = Lz+Sz
+    
+    Lvec = [Lx,Ly,Lz]
+    Svec = [Sx,Sy,Sz]
+
+    for k in range(3):
+        for j in range(3):
+            assert(norm(Lvec[k]*Svec[j]-Svec[j]*Lvec[k])<eps)
+        
+    assert(norm(Lx*Ly-Ly*Lx-1j*Lz)<eps)
+    assert(norm(Sx*Sy-Sy*Sx-1j*Sz)<eps)
+    assert(norm(Jx*Jy-Jy*Jx-1j*Jz)<eps)
+
+    assert(norm(Lx*Lx + Ly*Ly + Lz* Lz - L*(L+np.eye(len(L)))) < eps)
+    assert(norm(Sx*Sx + Sy*Sy + Sz* Sz - S*(S+np.eye(len(S)))) < eps)
+    assert(norm(Jx*Jx + Jy*Jy + Jz* Jz - J*(J+np.eye(len(J)))) < eps)
+
 
 
 def test_Pr_LaF3():
@@ -165,3 +203,6 @@ def test_ErYSO():
     assert(np.max(np.abs(
         calc_nrg_levels[0:8]-seb_levels[0:8]))
            < 0.6 )
+
+
+    

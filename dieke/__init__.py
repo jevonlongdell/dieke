@@ -19,6 +19,11 @@ __email__ = 'jevon.longdell@gmail.com'
 __version__ = '0.3.0'
 
 
+def emptymatrix(n):
+    return np.mat(np.zeros((n,n)))
+
+
+
 class RareEarthIon:
     def __init__(self, nf):
         (self.LStermLabels,
@@ -32,10 +37,10 @@ class RareEarthIon:
         self.N = int(round(self.N))
         self.nf = nf
 
-        L = np.zeros((self.N, self.N))
-        S = np.zeros((self.N, self.N))
-        J = np.zeros((self.N, self.N))
-        mJ = np.zeros((self.N, self.N))
+        L = emptymatrix(self.N)
+        S = emptymatrix(self.N)
+        J = emptymatrix(self.N)
+        mJ = emptymatrix(self.N)
         # The index given in the crosswhite data files
         # to distinguish different terms that have the same
         # L and S
@@ -56,12 +61,12 @@ class RareEarthIon:
 
         # Make zeeman operators
         wignerlookup = WignerDict()
-        L0 = np.zeros((self.N, self.N), dtype=complex)
-        L1 = np.zeros((self.N, self.N), dtype=complex)
-        Lminus1 = np.zeros((self.N, self.N), dtype=complex)
-        S0 = np.zeros((self.N, self.N), dtype=complex)
-        S1 = np.zeros((self.N, self.N), dtype=complex)
-        Sminus1 = np.zeros((self.N, self.N), dtype=complex)
+        L0 = emptymatrix(self.N)
+        L1 = emptymatrix(self.N)
+        Lminus1 = emptymatrix(self.N)
+        S0 = emptymatrix(self.N)
+        S1 = emptymatrix(self.N)
+        Sminus1 = emptymatrix(self.N)
         for ii in range(self.N):
             twiceL = int(round(2*self.FreeIonMatrix['L'][ii, ii]))
             twiceS = int(round(2*self.FreeIonMatrix['S'][ii, ii]))
@@ -75,29 +80,38 @@ class RareEarthIon:
                 twiceJp = int(round(2*self.FreeIonMatrix['J'][jj, jj]))
                 twicemJp = int(round(2*self.FreeIonMatrix['mJ'][jj, jj]))
                 cwidxp = int(round(self.FreeIonMatrix['CWIDX'][jj, jj]))
-                if cwidx == cwidxp and twicemJ == twicemJp:
+                if cwidx == cwidxp:  # and twicemJ == twicemJp:
                     if twiceLp == twiceL and  twiceSp == twiceS:
                         # Use 4-3 from Wyborne's, "Spectroscopic Properties of
                         # Rare Earths"
                         sign = (-1)**((twiceJ-twicemJ)/2.0)
-                        L0[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, 0, twicemJ) * \
+                        L0[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp,
+                                                           -twicemJ, 0, twicemJp) * \
                                      reducedL(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
-                        L1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, 2, twicemJp) * \
+                        L1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp,
+                                                           -twicemJ, 2, twicemJp) * \
                                      reducedL(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
                         # Todo probably don't need to calculate L_{-1} could just use
                         # Hermitianess like properties instead.
-                        Lminus1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, -2, twicemJp) * \
+                        Lminus1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp,
+                                                                 -twicemJ,-2, twicemJp) * \
                                      reducedL(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
                         
-                        S0[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, 0, twicemJ) * \
+                        S0[ii, jj] = sign * wignerlookup.w3j(twiceJ,  2, twiceJp,
+                                                             -twicemJ, 0, twicemJp) * \
                                      reducedS(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
-                        S1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, 2, twicemJ) * \
+                        S1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp,
+                                                             -twicemJ, 2, twicemJp) * \
                                      reducedS(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
-                        Sminus1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp, -twicemJ, -2, twicemJ) * \
+                        Sminus1[ii, jj] = sign * wignerlookup.w3j(twiceJ,  2, twiceJp,
+                                                                -twicemJ, -2, twicemJp) * \
                                      reducedS(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
+            self.FreeIonMatrix['L1']=L1
+            self.FreeIonMatrix['L-1']=Lminus1
+            self.FreeIonMatrix['S1']=S1
+            self.FreeIonMatrix['S-1']=Sminus1
             self.FreeIonMatrix['Lx']=1/np.sqrt(2)*(Lminus1-L1)
             self.FreeIonMatrix['Ly']=1j/np.sqrt(2)*(Lminus1+L1)
-            self.FreeIonMatrix['L1']=L1
             self.FreeIonMatrix['Lz']=L0
             self.FreeIonMatrix['Sx']=1/np.sqrt(2)*(Sminus1-S1)
             self.FreeIonMatrix['Sy']=1j/np.sqrt(2)*(Sminus1+S1)
@@ -128,9 +142,9 @@ class IsotropicRareEarthIon:
 
         self.N = len(self.LSJlevelLabels)
 
-        L = np.zeros((self.N, self.N))
-        S = np.zeros((self.N, self.N))
-        J = np.zeros((self.N, self.N))
+        L = emptymatrix(self.N)
+        S = emptymatrix(self.N)
+        J = emptymatrix(self.N)
 
         for ii in range(self.N):
             L[ii, ii] = LfromLevelLabel(self.LSJlevelLabels[ii])
