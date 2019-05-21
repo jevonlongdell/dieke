@@ -21,8 +21,8 @@ __email__ = 'jevon.longdell@gmail.com'
 __version__ = '0.3.0'
 
 
-def emptymatrix(n,type):
-    return lil_matrix((n,n),dtype=type)
+def emptymatrix(n,dtype='double'):
+    return lil_matrix((n,n),dtype=dtype)
 #    return np.mat(np.zeros((n,n)))
 
 
@@ -440,7 +440,8 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
         for q in range(-k, k+1):
             # print("Making C%d%d matrix." % (k, q))
 #            Ckq[(k, q)]
-            cmatrix = np.matrix(np.zeros([numstates, numstates],dtype='complex128'))
+#            cmatrix = np.matrix(np.zeros([numstates, numstates],dtype='complex128'))
+            cmatrix = emptymatrix(numstates,dtype='complex')
             for i in range(len(LSJlevels)):
                 istart = multiplet_start[i]
                 isize = multiplet_size[i]
@@ -486,7 +487,7 @@ def makeFullFreeIonOperators(nf, LSJlevels, fi_mat):
     full_fi_mat = {}
 
     for key in fi_mat.keys():
-        full_fi_mat[key] = np.zeros([numstates, numstates])
+        full_fi_mat[key] = emptymatrix(numstates)
     multiplet_size = []
     multiplet_start = []
 
@@ -731,7 +732,7 @@ def read_crosswhite(nf):
             mat_element = float(line[0])
             param = line[1]
             if not(param in fi_mat):
-                fi_mat[param] = np.zeros([numLSJ, numLSJ])
+                fi_mat[param] = emptymatrix(numLSJ)
                 parameters[pnum] = param
             assert(parameters[pnum] == param)
             II = i+count-1
@@ -741,8 +742,9 @@ def read_crosswhite(nf):
 
         # fill in the other triangle
     for key in fi_mat.keys():
-        fi_mat[key] = fi_mat[key]+np.transpose(fi_mat[key]) - \
-                      np.diag(np.diag(fi_mat[key]))
+        olddiag = fi_mat[key].diagonal()
+        fi_mat[key] = fi_mat[key]+np.transpose(fi_mat[key])
+        fi_mat[key].setdiag(olddiag)
     # Why 1000 indeed ...
     fi_mat['ALPHA'] = 1000*fi_mat['.01ALPH']
     
