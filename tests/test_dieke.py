@@ -16,16 +16,16 @@ def test_LS_commutation_relations():
     
     Re = dieke.RareEarthIon(2)  # Pr
 
-    L = Re.FreeIonMatrix['L'].A
-    Lx = Re.FreeIonMatrix['Lx'].A
-    Ly = Re.FreeIonMatrix['Ly'].A
-    Lz = Re.FreeIonMatrix['Lz'].A
-    S = Re.FreeIonMatrix['S'].A
-    Sx = Re.FreeIonMatrix['Sx'].A
-    Sy = Re.FreeIonMatrix['Sy'].A
-    Sz = Re.FreeIonMatrix['Sz'].A
+    L = Re.FreeIonMatrix['L']
+    Lx = Re.FreeIonMatrix['Lx']
+    Ly = Re.FreeIonMatrix['Ly']
+    Lz = Re.FreeIonMatrix['Lz']
+    S = Re.FreeIonMatrix['S']
+    Sx = Re.FreeIonMatrix['Sx']
+    Sy = Re.FreeIonMatrix['Sy']
+    Sz = Re.FreeIonMatrix['Sz']
     
-    J = Re.FreeIonMatrix['J'].A
+    J = Re.FreeIonMatrix['J']
     Jx = Lx+Sx
     Jy = Ly+Sy
     Jz = Lz+Sz
@@ -35,15 +35,15 @@ def test_LS_commutation_relations():
 
     for k in range(3):
         for j in range(3):
-            assert(norm(Lvec[k]*Svec[j]-Svec[j]*Lvec[k])<eps)
-        
-    assert(norm(Lx*Ly-Ly*Lx-1j*Lz)<eps)
-    assert(norm(Sx*Sy-Sy*Sx-1j*Sz)<eps)
-    assert(norm(Jx*Jy-Jy*Jx-1j*Jz)<eps)
+            assert(norm((Lvec[k]@Svec[j]-Svec[j]@Lvec[k]).A)<eps)
 
-    assert(norm(Lx*Lx + Ly*Ly + Lz* Lz - L*(L+np.eye(len(L)))) < eps)
-    assert(norm(Sx*Sx + Sy*Sy + Sz* Sz - S*(S+np.eye(len(S)))) < eps)
-    assert(norm(Jx*Jx + Jy*Jy + Jz* Jz - J*(J+np.eye(len(J)))) < eps)
+    assert(norm((Lx@Ly-Ly@Lx-1j*Lz).A)<eps)
+    assert(norm((Sx@Sy-Sy@Sx-1j*Sz).A)<eps)
+    assert(norm((Jx@Jy-Jy@Jx-1j*Jz).A)<eps)
+
+    assert(norm((Lx@Lx + Ly@Ly + Lz@ Lz - L@(L+np.eye(Re.numstates()))).A) < eps)
+    assert(norm((Sx@Sx + Sy@Sy + Sz@ Sz - S@(S+np.eye(Re.numstates()))).A) < eps)
+    assert(norm((Jx@Jx + Jy@Jy + Jz@ Jz - J@(J+np.eye(Re.numstates()))).A) < eps)
 
 
 
