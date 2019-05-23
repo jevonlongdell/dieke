@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import dieke
-
+import gzip
+import pickle
 
 # Calculates the energy levels of Pr:LaF3 as the strength of the
 # crystal field terms are varied from zero to 150% or their actual
@@ -12,7 +13,17 @@ nf = 2  # 2 f-electrons means we're dealing with Pr
 
 # This object contains the matricies we need for the
 # calculations all in the dictionary "FreeIonMatrix"
-Pr = dieke.RareEarthIon(nf,5/2)
+
+try:
+    fname = 'Pr141matricies.dat.gz'
+    f = gzip.open(fname, 'rb')
+    print("Loading matricies")
+    Pr = pickle.load(f)
+except FileNotFoundError:
+    print("Making matricies")
+    Pr = dieke.RareEarthIon(nf,5/2)
+    pickle.dump(Pr, gzip.open(fname, 'wb'))
+
 
 
 # Read in a a set of crystal field parameters from Pr:LaF3
@@ -23,6 +34,10 @@ cfparams = dieke.readLaF3params(nf)
 # Number of levels and states
 numLSJ = Pr.numlevels()
 numstates = Pr.numstates()
+
+
+cfparams['HF'] = 0.005466 
+
 
 # Variable multiplier for the crystal field strength
 # this will be the x-axis of the graph we will draw

@@ -1,9 +1,10 @@
 import numpy as np
 ## Alternatives for wigner symbols
 #from .wigner import Wigner6j, Wigner3j
-#from sympy.physics.wigner import wigner_3j as sympy_wigner_3j
-#from sympy.physics.wigner import wigner_6j as sympy_wigner_6j
-from .njsymbols import wigner_3j, wigner_6j
+from sympy.physics.wigner import wigner_3j
+from sympy.physics.wigner import wigner_6j
+from sympy.physics.wigner import wigner_9j 
+#rom .njsymbols import wigner_3j, wigner_6j, wigner_9j
 from scipy.special import factorial
 from fractions import Fraction
 from .sljcalc import reducedL, reducedS, istriad
@@ -59,7 +60,8 @@ class RareEarthIon:
             S[ii, ii] = SfromStateLabel(self.LSJmJstateLabels[ii])
             J[ii, ii] = JfromStateLabel(self.LSJmJstateLabels[ii])
             mJ[ii, ii] = mJfromStateLabel(self.LSJmJstateLabels[ii])
-            cwidx[ii, ii] = CrosswhiteIndexfromStateLabel(self.LSJmJstateLabels[ii])
+            cwidx[ii, ii] = CrosswhiteIndexfromStateLabel(
+                self.LSJmJstateLabels[ii])
 
         self.FreeIonMatrix['L'] = L
         self.FreeIonMatrix['S'] = S
@@ -67,8 +69,11 @@ class RareEarthIon:
         self.FreeIonMatrix['mJ'] = mJ
         self.FreeIonMatrix['CWIDX'] = cwidx
 
+        for k in ['L', 'S', 'J', 'mJ', 'CWIDX']:
+            self.FreeIonMatrix[k] = self.FreeIonMatrix[k].tocsr()
+        
         # Make zeeman operators
-        wignerlookup = WignerDict()
+        wl = WignerDict()
         L0 = emptymatrix(self.N, 'complex')
         L1 = emptymatrix(self.N, 'complex')
         Lminus1 = emptymatrix(self.N, 'complex')
@@ -93,25 +98,25 @@ class RareEarthIon:
                         # Use 4-3 from Wyborne's, "Spectroscopic Properties of
                         # Rare Earths"
                         sign = (-1)**((twiceJ-twicemJ)/2.0)
-                        L0[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp,
+                        L0[ii, jj] = sign * wl.w3j(twiceJ, 2, twiceJp,
                                                            -twicemJ, 0, twicemJp) * \
                                      reducedL(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
-                        L1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp,
+                        L1[ii, jj] = sign * wl.w3j(twiceJ, 2, twiceJp,
                                                            -twicemJ, 2, twicemJp) * \
                                      reducedL(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
                         # Todo probably don't need to calculate L_{-1} could just use
                         # Hermitianess like properties instead.
-                        Lminus1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp,
+                        Lminus1[ii, jj] = sign * wl.w3j(twiceJ, 2, twiceJp,
                                                                  -twicemJ,-2, twicemJp) * \
                                      reducedL(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
                         
-                        S0[ii, jj] = sign * wignerlookup.w3j(twiceJ,  2, twiceJp,
+                        S0[ii, jj] = sign * wl.w3j(twiceJ,  2, twiceJp,
                                                              -twicemJ, 0, twicemJp) * \
                                      reducedS(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
-                        S1[ii, jj] = sign * wignerlookup.w3j(twiceJ, 2, twiceJp,
+                        S1[ii, jj] = sign * wl.w3j(twiceJ, 2, twiceJp,
                                                              -twicemJ, 2, twicemJp) * \
                                      reducedS(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
-                        Sminus1[ii, jj] = sign * wignerlookup.w3j(twiceJ,  2, twiceJp,
+                        Sminus1[ii, jj] = sign * wl.w3j(twiceJ,  2, twiceJp,
                                                                 -twicemJ, -2, twicemJp) * \
                                      reducedS(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
         self.FreeIonMatrix['L1'] = L1
@@ -127,25 +132,30 @@ class RareEarthIon:
         self.FreeIonMatrix['HF'] = 0
 
         if self.I != 0:
+
             for k in self.FreeIonMatrix.keys():
                 self.FreeIonMatrix[k] = sparse.kron(self.FreeIonMatrix[k],
                                                     sparse.eye(2*self.I+1))
-            mI = np.arange(self.I,-self.I-1,-1)
+                self.FreeIonMatrix[k] = self.FreeIonMatrix[k].tocsr()
+
+            mI = np.arange(self.I, -self.I-1, -1)
             Iz = sparse.diags(mI)
-            Ip = sparse.diags(np.sqrt(self.I*(self.I+1)-(mI+1)*mI)[1:],1)
+            Ip = sparse.diags(
+                np.sqrt(self.I*(self.I+1)-(mI+1)*mI)[1:]
+                ,1)
             Im = Ip.T
             Ix = 0.5*(Ip+Im)
             Iy = -0.5*1j*(Ip-Im)
-            
+
             self.FreeIonMatrix['Ix'] = sparse.kron(sparse.eye(self.N),
-                                                   Ix)
+                                                   Ix).tocsr()
             self.FreeIonMatrix['Iy'] = sparse.kron(sparse.eye(self.N),
-                                                   Iy)
+                                                   Iy).tocsr()
             self.FreeIonMatrix['Iz'] = sparse.kron(sparse.eye(self.N),
-                                                   Iz)
-            
+                                                   Iz).tocsr()
+
             self.N = int(np.round(self.N * (2*I+1)))
-            self.FreeIonMatrix['HF'] = emptymatrix(self.N)
+            self.FreeIonMatrix['HF'] = emptymatrix(self.N,'complex')
             for ii in range(self.N):
                 twiceL = int(round(2*self.FreeIonMatrix['L'][ii, ii]))
                 twiceS = int(round(2*self.FreeIonMatrix['S'][ii, ii]))
@@ -162,28 +172,34 @@ class RareEarthIon:
                     twicemIp = int(round(self.FreeIonMatrix['Iz'][jj, jj]))
                     if cwidx == cwidxp and twiceS == twiceSp:
                         summ = 0
-                        for q in  [-1,0,1]:
-                            summ=summ+ (-1)**q* \
-                                  wignerlookup.w3j(twiceJ,  2, twiceJp,
-                                                   -twicemJ, 2*q, twicemJp)*\
-                                  wignerlookup.w3j(2*self.I,  2, 2*self.I,
-                                                   -twicemI, 2*q, twicemIp)
                                                    
-                        phase1 =(-1)**((twiceL+twiceS+twiceM+2*self.I+twicemI+2)/2)
-                        phase2 = (-1)**((twiceJ+twiceM+twiceL*2*self.I+twicemI)/2)
-                        self.FreeIonMatrix['HF'][ii,jj] = \
-                          np.sqrt(sb(twiceJ/2)*sb(twiceJp/2)*sb(self.I)*(self.I+1))*(
-                              phase1*np.sqrt(sb(twiceL/2)*(L+1)) *
-                                             wignerlookup.w6j(twiceL, twiceLp,2,
-                                                              twiceJp, twiceJ, twiceS
-                                             )
-                              -phase2*np.sqrt(30*sb(twiceL/2)*sb(twiceLp/2)*sb(twiceS/2).....
-                          )
-                              
-                          )                                
-                        
-                        
-            
+                        phase1 =(-1)**((twiceL+twiceS+twicemJ+2*self.I+twicemI+2)/2)
+                        phase2 = (-1)**((twiceJ+twicemJ+twiceL*2*self.I+twicemI)/2)
+
+                        prefactor = np.sqrt(sb(twiceJ/2)*sb(twiceJp/2)*sb(self.I)*(self.I+1))
+                        term1 = phase1 * np.sqrt(sb(twiceL/2)*(twiceL/2+1)) * \
+                                wl.w6j(twiceL, twiceLp,2,
+                                       twiceJp, twiceJ, twiceS
+                                       )
+                        term2 = phase2 * np.sqrt(30*sb(twiceL/2)*sb(twiceLp/2)*sb(twiceS/2)) * \
+                                wl.w3j(twiceLp, 4, twiceL, 0, 0, 0) * \
+                                wl.w9j(twiceS, twiceSp, 2,
+                                       twiceL, twiceLp, 4,
+                                       twiceJ, twiceJp, 2
+                                )
+                        postfactor = 0
+                        for q in [-1, 0, 1]:
+                            postfactor += (-1)**q * \
+                                  wl.w3j(
+                                      twiceJ,  2, twiceJp,
+                                      -twicemJ, 2*q, twicemJp
+                                  ) * \
+                                  wl.w3j(
+                                      2*self.I,  2, 2*self.I,
+                                      -twicemI, 2*q, twicemIp
+                                  )
+                        self.FreeIonMatrix['HF'][ii, jj] = \
+                            prefactor*(term1-term2)*postfactor
 
     def Cmatrix(self, k, q):
         if(self.I == 0):
@@ -449,6 +465,8 @@ class ReducedMagMomDict:
 class WignerDict:
     def __init__(self):
         self.w3jdict = {}
+        self.w6jdict = {}
+        self.w9jdict = {}
 
     def w3j(self, twicej1, twicej2, twicej3, twicem1, twicem2, twicem3):
         wargs = (twicej1, twicej2, twicej3, twicem1, twicem2, twicem3)
@@ -463,14 +481,53 @@ class WignerDict:
             #     if not (np.abs(w3jtemp-spw3j)<1e-6):
             #         print("wigner3j error")
             # except:
-            #     import pdb; pdb.set_trace()               
+            #     import pdb; pdb.set_trace()
             self.w3jdict[(wargs)] = w3jtemp
             return w3jtemp
+
+    def w6j(self, twicej1, twicej2, twicej3, twicem1, twicem2, twicem3):
+        wargs = (twicej1, twicej2, twicej3, twicem1, twicem2, twicem3)
+        if wargs in self.w6jdict:
+                return self.w6jdict[wargs]
+        else:
+            w6jtemp = wigner_6j(twicej1/2.0, twicej2/2.0, twicej3/2.0,
+                                twicem1/2.0, twicem2/2.0, twicem3/2.0)
+#            spw3j = sympy_wigner_3j(twicej1/2.0, twicej2/2.0, twicej3/2.0,
+#                                twicem1/2.0, twicem2/2.0, twicem3/2.0)
+            # try:
+            #     if not (np.abs(w3jtemp-spw3j)<1e-6):
+            #         print("wigner3j error")
+            # except:
+            #     import pdb; pdb.set_trace()
+            self.w6jdict[(wargs)] = w6jtemp
+            return w6jtemp
+
+
+
+    def w9j(self, twicej1, twicej2, twicej3, twicem1, twicem2, twicem3, twicei1, twicei2, twicei3 ):
+        wargs = (twicej1, twicej2, twicej3, twicem1, twicem2, twicem3, twicei1, twicei2, twicei3 )
+        if wargs in self.w9jdict:
+                return self.w9jdict[wargs]
+        else:
+            w9jtemp = wigner_9j(
+                twicej1/2.0, twicej2/2.0, twicej3/2.0,
+                twicem1/2.0, twicem2/2.0, twicem3/2.0,
+                twicei1/2.0, twicei2/2.0, twicei3/2.0
+            )
+#            spw3j = sympy_wigner_3j(twicej1/2.0, twicej2/2.0, twicej3/2.0,
+#                                twicem1/2.0, twicem2/2.0, twicem3/2.0)
+            # try:
+            #     if not (np.abs(w3jtemp-spw3j)<1e-6):
+            #         print("wigner3j error")
+            # except:
+            #     import pdb; pdb.set_trace()
+            self.w9jdict[(wargs)] = w9jtemp
+            return w9jtemp
 
 
 # Equation 1.37 from Guokui and Liu
 def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
-    wignerlookup = WignerDict()
+    wl = WignerDict()
     numstates = len(LSJmJstates)
     leveldict = {}
     for k in range(len(LSJlevels)):
@@ -525,7 +582,7 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
                         for ij in range(jsize):
                             twicemJprime = -twiceJprime + 2*ij
                             # mJprime=-Jprime+ij#commented because never used?
-                            threejtemp = wignerlookup.w3j(twiceJ, 2*k,
+                            threejtemp = wl.w3j(twiceJ, 2*k,
                                                           twiceJprime,
                                                           -twicemJ, 2*q,
                                                           twicemJprime)

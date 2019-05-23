@@ -28,10 +28,6 @@ import numpy as np
 from scipy.special import factorial
 
 
-
-from math import fsum
-
-
 def tricon_ck(a, b, c):
     r"""
     Triangular condition check; returns True if the triangular condition on the
@@ -88,11 +84,10 @@ def wigner_3j(j1, j2, j3, m1, m2, m3):
         xmin = max(0, j3 - j2 - m1)
         xmax = min(j3 + m3, j1 - m1)
         xlist = np.arange(xmin, xmax + 1)
-        #        try:
-        result = phase * pre_fact * fsum([((-1)**(j1 - m1 - x) * (factorial(j1 + m1 + x) * factorial(j3 + j2 - m1 - x)) /(factorial(x) * factorial(j3 + m3 - x) * factorial(j1 - m1 - x) * factorial(j2 - j3 + m1 + x)))  for x in xlist])
-#        except:
-#            print(xlist, j1, j2,j3, m1,m2,m3)
-#            import pdb; pdb.set_trace()
+        result = phase * pre_fact * np.sum([((-1)**(j1 - m1 - x) * (factorial(j1 + m1 + x) * factorial(j3 + j2 - m1 - x)) /(factorial(x) * factorial(j3 + m3 - x) * factorial(j1 - m1 - x) * factorial(j2 - j3 + m1 + x)))  for x in xlist])
+        assert(np.abs(np.imag(result))<1e-9)
+
+
     else:
         result = 0
 
@@ -151,14 +146,15 @@ def wigner_6j(a, b, c, d, e, f):
         xmin = max(a + b + c, a + e + f, d + b + f, d + e + c)
         xmax = min(a + b + d + e, b + c + e + f, c + a + f + d)
         xlist = np.arange(xmin, xmax + 1)
-        result = pre_fact * fsum([((-1)**x * factorial(x + 1)/(factorial(x -
+        result = pre_fact * np.sum([((-1)**x * factorial(x + 1)/(factorial(x -
             a - b -c) * factorial(x - a - e - f) * factorial(x - d - b - f) *
             factorial(x - d - e - c) * factorial(a + b + d + e - x) *
             factorial(b + c + e + f - x) * factorial(c + a + f + d - x))) for x
             in xlist])
     else:
         result = 0
-
+ #   print(a,b,c,d,e,f,result)
+    assert(np.abs(np.imag(result))<1e-9)
     return(result)
 
 
