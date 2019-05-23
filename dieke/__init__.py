@@ -9,7 +9,8 @@ from fractions import Fraction
 from .sljcalc import reducedL, reducedS, istriad
 import pandas
 import os
-from scipy.sparse import lil_matrix
+# from scipy.sparse import lil_matrix
+import scipy.sparse as sparse
 
 
 np.seterr(all='raise')
@@ -22,13 +23,13 @@ __version__ = '0.4.0'
 
 
 def emptymatrix(n,dtype='double'):
-    return lil_matrix((n,n),dtype=dtype)
+    return sparse.lil_matrix((n,n),dtype=dtype)
 #    return np.mat(np.zeros((n,n)))
 
 
 
 class RareEarthIon:
-    def __init__(self, nf):
+    def __init__(self, nf,I=0):
         (self.LStermLabels,
            self.Uk,
            self.LSJlevelLabels,
@@ -39,6 +40,7 @@ class RareEarthIon:
         self.N = factorial(14)//(factorial(nf)*factorial(14-nf))
         self.N = int(round(self.N))
         self.nf = nf
+        self.I = I
 
         L = emptymatrix(self.N, 'double')
         S = emptymatrix(self.N, 'double')
@@ -111,23 +113,28 @@ class RareEarthIon:
                         Sminus1[ii, jj] = sign * wignerlookup.w3j(twiceJ,  2, twiceJp,
                                                                 -twicemJ, -2, twicemJp) * \
                                      reducedS(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
-            self.FreeIonMatrix['L1']=L1
-            self.FreeIonMatrix['L-1']=Lminus1
-            self.FreeIonMatrix['S1']=S1
-            self.FreeIonMatrix['S-1']=Sminus1
-            self.FreeIonMatrix['Lx']=1/np.sqrt(2)*(Lminus1-L1)
-            self.FreeIonMatrix['Ly']=1j/np.sqrt(2)*(Lminus1+L1)
-            self.FreeIonMatrix['Lz']=L0
-            self.FreeIonMatrix['Sx']=1/np.sqrt(2)*(Sminus1-S1)
-            self.FreeIonMatrix['Sy']=1j/np.sqrt(2)*(Sminus1+S1)
-            self.FreeIonMatrix['Sz']=S0
-            
-            
-                        
+            self.FreeIonMatrix['L1'] = L1
+            self.FreeIonMatrix['L-1'] = Lminus1
+            self.FreeIonMatrix['S1'] = S1
+            self.FreeIonMatrix['S-1'] = Sminus1
+            self.FreeIonMatrix['Lx'] = 1/np.sqrt(2)*(Lminus1-L1)
+            self.FreeIonMatrix['Ly'] = 1j/np.sqrt(2)*(Lminus1+L1)
+            self.FreeIonMatrix['Lz'] = L0
+            self.FreeIonMatrix['Sx'] = 1/np.sqrt(2)*(Sminus1-S1)
+            self.FreeIonMatrix['Sy'] = 1j/np.sqrt(2)*(Sminus1+S1)
+            self.FreeIonMatrix['Sz'] = S0
 
+        if self.I != 0:
+            for k in self.FreeIonMatrix.keys():
+                self.FreeIonMatrix[k] = sparse.kron(self.FreeIonMatrix[k],
+                                                    sparse.eye(2*self.I+1))
+            self.N = int(np.round(self.N * (2*I+1)))
 
     def Cmatrix(self, k, q):
-        return self.Ckq[(k, q)]
+        if(self.I == 0):
+            return self.Ckq[(k, q)]
+        else:
+            return sparse.kron(self.Ckq[(k, q)], sparse.eye(2*self.I+1))
 
     def numlevels(self):
         return len(self.LSJlevelLabels)
