@@ -26,7 +26,8 @@ def emptymatrix(n,dtype='double'):
     return sparse.lil_matrix((n,n),dtype=dtype)
 #    return np.mat(np.zeros((n,n)))
 
-
+def sb(a): # square brackets
+    return (2*a+1)
 
 class RareEarthIon:
     def __init__(self, nf,I=0):
@@ -113,22 +114,76 @@ class RareEarthIon:
                         Sminus1[ii, jj] = sign * wignerlookup.w3j(twiceJ,  2, twiceJp,
                                                                 -twicemJ, -2, twicemJp) * \
                                      reducedS(twiceS, twiceL, twiceJ, twiceSp, twiceLp, twiceJp)
-            self.FreeIonMatrix['L1'] = L1
-            self.FreeIonMatrix['L-1'] = Lminus1
-            self.FreeIonMatrix['S1'] = S1
-            self.FreeIonMatrix['S-1'] = Sminus1
-            self.FreeIonMatrix['Lx'] = 1/np.sqrt(2)*(Lminus1-L1)
-            self.FreeIonMatrix['Ly'] = 1j/np.sqrt(2)*(Lminus1+L1)
-            self.FreeIonMatrix['Lz'] = L0
-            self.FreeIonMatrix['Sx'] = 1/np.sqrt(2)*(Sminus1-S1)
-            self.FreeIonMatrix['Sy'] = 1j/np.sqrt(2)*(Sminus1+S1)
-            self.FreeIonMatrix['Sz'] = S0
+        self.FreeIonMatrix['L1'] = L1
+        self.FreeIonMatrix['L-1'] = Lminus1
+        self.FreeIonMatrix['S1'] = S1
+        self.FreeIonMatrix['S-1'] = Sminus1
+        self.FreeIonMatrix['Lx'] = 1/np.sqrt(2)*(Lminus1-L1)
+        self.FreeIonMatrix['Ly'] = 1j/np.sqrt(2)*(Lminus1+L1)
+        self.FreeIonMatrix['Lz'] = L0
+        self.FreeIonMatrix['Sx'] = 1/np.sqrt(2)*(Sminus1-S1)
+        self.FreeIonMatrix['Sy'] = 1j/np.sqrt(2)*(Sminus1+S1)
+        self.FreeIonMatrix['Sz'] = S0
+        self.FreeIonMatrix['HF'] = 0
 
         if self.I != 0:
             for k in self.FreeIonMatrix.keys():
                 self.FreeIonMatrix[k] = sparse.kron(self.FreeIonMatrix[k],
                                                     sparse.eye(2*self.I+1))
+            mI = np.arange(self.I,-self.I-1,-1)
+            Iz = sparse.diags(mI)
+            Ip = sparse.diags(np.sqrt(self.I*(self.I+1)-(mI+1)*mI)[1:],1)
+            Im = Ip.T
+            Ix = 0.5*(Ip+Im)
+            Iy = -0.5*1j*(Ip-Im)
+            
+            self.FreeIonMatrix['Ix'] = sparse.kron(sparse.eye(self.N),
+                                                   Ix)
+            self.FreeIonMatrix['Iy'] = sparse.kron(sparse.eye(self.N),
+                                                   Iy)
+            self.FreeIonMatrix['Iz'] = sparse.kron(sparse.eye(self.N),
+                                                   Iz)
+            
             self.N = int(np.round(self.N * (2*I+1)))
+            self.FreeIonMatrix['HF'] = emptymatrix(self.N)
+            for ii in range(self.N):
+                twiceL = int(round(2*self.FreeIonMatrix['L'][ii, ii]))
+                twiceS = int(round(2*self.FreeIonMatrix['S'][ii, ii]))
+                twiceJ = int(round(2*self.FreeIonMatrix['J'][ii, ii]))
+                twicemJ = int(round(2*self.FreeIonMatrix['mJ'][ii, ii]))
+                cwidx = int(round(self.FreeIonMatrix['CWIDX'][ii, ii]))
+                twicemI = int(round(self.FreeIonMatrix['Iz'][ii, ii]))
+                for jj in range(self.N):
+                    twiceLp = int(round(2*self.FreeIonMatrix['L'][jj, jj]))
+                    twiceSp = int(round(2*self.FreeIonMatrix['S'][jj, jj]))
+                    twiceJp = int(round(2*self.FreeIonMatrix['J'][jj, jj]))
+                    twicemJp = int(round(2*self.FreeIonMatrix['mJ'][jj, jj]))
+                    cwidxp = int(round(self.FreeIonMatrix['CWIDX'][jj, jj]))
+                    twicemIp = int(round(self.FreeIonMatrix['Iz'][jj, jj]))
+                    if cwidx == cwidxp and twiceS == twiceSp:
+                        summ = 0
+                        for q in  [-1,0,1]:
+                            summ=summ+ (-1)**q* \
+                                  wignerlookup.w3j(twiceJ,  2, twiceJp,
+                                                   -twicemJ, 2*q, twicemJp)*\
+                                  wignerlookup.w3j(2*self.I,  2, 2*self.I,
+                                                   -twicemI, 2*q, twicemIp)
+                                                   
+                        phase1 =(-1)**((twiceL+twiceS+twiceM+2*self.I+twicemI+2)/2)
+                        phase2 = (-1)**((twiceJ+twiceM+twiceL*2*self.I+twicemI)/2)
+                        self.FreeIonMatrix['HF'][ii,jj] = \
+                          np.sqrt(sb(twiceJ/2)*sb(twiceJp/2)*sb(self.I)*(self.I+1))*(
+                              phase1*np.sqrt(sb(twiceL/2)*(L+1)) *
+                                             wignerlookup.w6j(twiceL, twiceLp,2,
+                                                              twiceJp, twiceJ, twiceS
+                                             )
+                              -phase2*np.sqrt(30*sb(twiceL/2)*sb(twiceLp/2)*sb(twiceS/2).....
+                          )
+                              
+                          )                                
+                        
+                        
+            
 
     def Cmatrix(self, k, q):
         if(self.I == 0):
