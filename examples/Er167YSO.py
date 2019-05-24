@@ -10,16 +10,16 @@ I = 7/2
 # This object contains the matricies we need for the
 # calculations all in the dictionary "FreeIonMatrix"
 
-try:
-    fname = 'Er167matricies.dat.gz'
-    f = gzip.open(fname, 'rb')
-    print("Loading matricies")
-    Er = pickle.load(f)
-except FileNotFoundError:
-    print("Making matricies")
-    Er = dieke.RareEarthIon(nf,I)
-    pickle.dump(Er, gzip.open(fname, 'wb'))
-
+# try:
+#     fname = 'Er167matricies.dat.gz'
+#     f = gzip.open(fname, 'rb')
+#     print("Loading matricies")
+#     Er = pickle.load(f)
+# except FileNotFoundError:
+#     print("Making matricies")
+#     Er = dieke.RareEarthIon(nf,I)
+#     pickle.dump(Er, gzip.open(fname, 'wb'))
+Er = dieke.RareEarthIon(11,7/2)
 
 # Read in a a set of crystal field parameters from Pr:LaF3
 # dieke reads these from (incomplete) carnall89params.xls

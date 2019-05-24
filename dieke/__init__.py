@@ -131,6 +131,14 @@ class RareEarthIon:
         self.FreeIonMatrix['Sz'] = S0
         self.FreeIonMatrix['HF'] = 0
 
+        # #x,y,and z components of rhat
+        # self.FreeIonMatrix['Rhatz'] = self.Ckq[(1, 0)]
+        # self.FreeIonMatrix['Rhatx'] = 1/np.sqrt(2)*(self.Ckq[(1, -1)]
+        #                                             - self.Ckq[(1, -1)])
+        # self.FreeIonMatrix['Rhaty'] = 1j/np.sqrt(2)*(self.Ckq[(1, -1)]
+        #                                              + self.Ckq[(1, -1)])
+
+        
         if self.I != 0:
 
             for k in self.FreeIonMatrix.keys():
@@ -295,6 +303,9 @@ def makeMatricies(nf):
     Ckq = makeCkq(LSJmJstates, LSJlevels, LSterms, Uk, nf)
     return (LSterms, Uk, LSJlevels, freeion_mat, LSJmJstates,
             full_freeion_mat, Ckq)
+
+
+
 
 
 def readLaF3params(nf):
@@ -587,6 +598,8 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
                                                           -twicemJ, 2*q,
                                                           twicemJprime)
                             if(threejtemp != 0):
+                                if(k==1):
+                                    print(lCkl,threejtemp,singlyreducedUk[k//2-1, i, j])
                                 cmatrix[istart+ii, jstart+ij] = \
                                     (-1)**(J-mJ)*threejtemp * \
                                     singlyreducedUk[k//2-1, i, j]*lCkl
