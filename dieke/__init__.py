@@ -40,7 +40,7 @@ class RareEarthIon:
            self.FreeIonMatrix,
            self.Ckq) = makeMatricies(nf)
         self.N = factorial(14)//(factorial(nf)*factorial(14-nf))
-        self.N = int(round(self.N))
+        self.N = int(np.round(self.N))
         self.nf = nf
         self.I = I
 
@@ -81,18 +81,18 @@ class RareEarthIon:
         S1 = emptymatrix(self.N, 'complex')
         Sminus1 = emptymatrix(self.N, 'complex')
         for ii in range(self.N):
-            twiceL = int(round(2*self.FreeIonMatrix['L'][ii, ii]))
-            twiceS = int(round(2*self.FreeIonMatrix['S'][ii, ii]))
-            twiceJ = int(round(2*self.FreeIonMatrix['J'][ii, ii]))
-            twicemJ = int(round(2*self.FreeIonMatrix['mJ'][ii, ii]))
-            cwidx = int(round(self.FreeIonMatrix['CWIDX'][ii, ii]))
+            twiceL = int(np.round(2*self.FreeIonMatrix['L'][ii, ii]))
+            twiceS = int(np.round(2*self.FreeIonMatrix['S'][ii, ii]))
+            twiceJ = int(np.round(2*self.FreeIonMatrix['J'][ii, ii]))
+            twicemJ = int(np.round(2*self.FreeIonMatrix['mJ'][ii, ii]))
+            cwidx = int(np.round(self.FreeIonMatrix['CWIDX'][ii, ii]))
             # Todo: Could make this twice as fast by only doing one triangle
             for jj in range(self.N):
-                twiceLp = int(round(2*self.FreeIonMatrix['L'][jj, jj]))
-                twiceSp = int(round(2*self.FreeIonMatrix['S'][jj, jj]))
-                twiceJp = int(round(2*self.FreeIonMatrix['J'][jj, jj]))
-                twicemJp = int(round(2*self.FreeIonMatrix['mJ'][jj, jj]))
-                cwidxp = int(round(self.FreeIonMatrix['CWIDX'][jj, jj]))
+                twiceLp = int(np.round(2*self.FreeIonMatrix['L'][jj, jj]))
+                twiceSp = int(np.round(2*self.FreeIonMatrix['S'][jj, jj]))
+                twiceJp = int(np.round(2*self.FreeIonMatrix['J'][jj, jj]))
+                twicemJp = int(np.round(2*self.FreeIonMatrix['mJ'][jj, jj]))
+                cwidxp = int(np.round(self.FreeIonMatrix['CWIDX'][jj, jj]))
                 if cwidx == cwidxp:  # and twicemJ == twicemJp:
                     if twiceLp == twiceL and  twiceSp == twiceS:
                         # Use 4-3 from Wyborne's, "Spectroscopic Properties of
@@ -165,19 +165,19 @@ class RareEarthIon:
             self.N = int(np.round(self.N * (2*I+1)))
             self.FreeIonMatrix['HF'] = emptymatrix(self.N,'complex')
             for ii in range(self.N):
-                twiceL = int(round(2*self.FreeIonMatrix['L'][ii, ii]))
-                twiceS = int(round(2*self.FreeIonMatrix['S'][ii, ii]))
-                twiceJ = int(round(2*self.FreeIonMatrix['J'][ii, ii]))
-                twicemJ = int(round(2*self.FreeIonMatrix['mJ'][ii, ii]))
-                cwidx = int(round(self.FreeIonMatrix['CWIDX'][ii, ii]))
-                twicemI = int(round(self.FreeIonMatrix['Iz'][ii, ii]))
+                twiceL = int(np.round(2*self.FreeIonMatrix['L'][ii, ii]))
+                twiceS = int(np.round(2*self.FreeIonMatrix['S'][ii, ii]))
+                twiceJ = int(np.round(2*self.FreeIonMatrix['J'][ii, ii]))
+                twicemJ = int(np.round(2*self.FreeIonMatrix['mJ'][ii, ii]))
+                cwidx = int(np.round(self.FreeIonMatrix['CWIDX'][ii, ii]))
+                twicemI = int(np.round(self.FreeIonMatrix['Iz'][ii, ii]))
                 for jj in range(self.N):
-                    twiceLp = int(round(2*self.FreeIonMatrix['L'][jj, jj]))
-                    twiceSp = int(round(2*self.FreeIonMatrix['S'][jj, jj]))
-                    twiceJp = int(round(2*self.FreeIonMatrix['J'][jj, jj]))
-                    twicemJp = int(round(2*self.FreeIonMatrix['mJ'][jj, jj]))
-                    cwidxp = int(round(self.FreeIonMatrix['CWIDX'][jj, jj]))
-                    twicemIp = int(round(self.FreeIonMatrix['Iz'][jj, jj]))
+                    twiceLp = int(np.round(2*self.FreeIonMatrix['L'][jj, jj]))
+                    twiceSp = int(np.round(2*self.FreeIonMatrix['S'][jj, jj]))
+                    twiceJp = int(np.round(2*self.FreeIonMatrix['J'][jj, jj]))
+                    twicemJp = int(np.round(2*self.FreeIonMatrix['mJ'][jj, jj]))
+                    cwidxp = int(np.round(self.FreeIonMatrix['CWIDX'][jj, jj]))
+                    twicemIp = int(np.round(self.FreeIonMatrix['Iz'][jj, jj]))
                     if cwidx == cwidxp and twiceS == twiceSp:
                         summ = 0
                                                    
@@ -550,7 +550,7 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
 
     count = 0
     for lvl in LSJlevels:
-        twiceJ = int(round(JfromLevelLabel(lvl)*2))
+        twiceJ = int(np.round(JfromLevelLabel(lvl)*2))
         twicemJvals = range(-twiceJ, twiceJ+1, 2)
         # the +1 in line above is only to make sure mJ
         # goes between -J and J inclusive
@@ -626,7 +626,7 @@ def makeFullFreeIonOperators(nf, LSJlevels, fi_mat):
     LSJmJstates = []
     count = 0
     for lvl in LSJlevels:
-        twiceJ = int(round(JfromLevelLabel(lvl)*2))
+        twiceJ = int(np.round(JfromLevelLabel(lvl)*2))
         twicemJvals = range(-twiceJ, twiceJ+1, 2)
         # the in the line above is +1 is only to make
         # sure mJ goes between -J and J inclusive
