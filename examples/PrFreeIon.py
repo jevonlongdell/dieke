@@ -35,10 +35,15 @@ numLSJ = Pr.numlevels()
 nrglevels = np.zeros([len(zetavals), numLSJ])
 H0 = np.zeros([numLSJ, numLSJ])
 
+
+
+included_params = cfparams.keys() # ['ZETA','F4','F2','F6']
+
+
 # Make the Hamiltonian, diagonalise it and work out the
 # energy of the ground state
-for k in cfparams.keys():
-    print("using parameter ", k)
+for k in included_params:
+    print("now using parameter ", k)
     if k in Pr.FreeIonMatrix:
         H0 = H0+cfparams[k]*Pr.FreeIonMatrix[k]
 
@@ -48,11 +53,12 @@ E0 = np.min(evals)
 
 # Loop over each of our zetavals, and calulate the Hamiltonian
 # for that value of zeta, diagonalise and store energy levels.
-cfparams2 = cfparams
+cfparams2 = cfparams.copy()
+
 for i, zeta in enumerate(zetavals):
     cfparams2['ZETA'] = zeta
     H = np.zeros([numLSJ, numLSJ])
-    for k in cfparams2.keys():
+    for k in included_params:
         if k in Pr.FreeIonMatrix:
             H = H + cfparams2[k]*Pr.FreeIonMatrix[k]
     (evals, evects) = np.linalg.eig(H)
