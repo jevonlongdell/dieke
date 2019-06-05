@@ -7,58 +7,84 @@ import dieke
 # crystal field terms are varied from zero to 150% or their actual
 # values.
 
-
 nf = 11  # 11 f-electrons means we're dealing with Er
+Er = dieke.RareEarthIon(nf)
 
 
-# all the matricies we need
-(LSterms, Uk, LSJlevels, freeion_mat,
- LSJmJstates, full_freeion_mat, Ckq) = dieke.makeMatricies(nf)
-# # LSterms          - list of LSterm labels
-# # Uk               - Uk in terms of these terms
-# # LSJlevels        - list of LSJ levels
-# # freeion_mat      - dictionary of free ion matricies in terms of those levels
-# # LSJmJstates      - list of LSJmJ states
-# # full_freeion_mat - the free ion matricies again but now in terms of LSJmJ
-# # Ckq              - Ckq matricies
+# Read in a a set of crystal field parameters from Er:LaF3
+# dieke reads these from (incomplete) carnall89params.xls
+cfparams = dieke.readLaF3params(nf)
 
-
-
-# # Read in a a set of crystal field parameters from Pr:LaF3
-# # dieke reads these from (incomplete) carnall89params.xls
-# cfparams = dieke.readLaF3params(nf)
-
+#Add in crystal field parameters for ErCl3.6H2O
+#Values are the Er-I-Fit-R set from
+#M. Karbowiak, P. Gnutek and C. Rudowicz, Physica B, 405, (2010), 1927–1940
+#doi:10.1016/j.physb.2010.01.086
+cfparams['nf'] =         11.0
+cfparams['F2'] =      96869.00
+cfparams['F4'] =      67842.00
+cfparams['F6'] =      55715.00
+cfparams['ZETA'] =     2380.00
+cfparams['ALPHA'] =      19.17
+cfparams['BETA'] =     -611.00
+cfparams['GAMMA'] =    1571.00
+cfparams['T2'] =        518.00
+cfparams['T3'] =         34.00
+cfparams['T4'] =         76.00
+cfparams['T6'] =       -340.00
+cfparams['T7'] =        317.00
+cfparams['T8'] =        393.00
+cfparams['M0'] =          4.58
+cfparams['P2'] =        740.00
+cfparams['B20'] =       170
+cfparams['B40'] =      -360
+cfparams['B60'] =      -201
+cfparams['B22'] =      -349
+cfparams['B42'] =       451 + 32j
+cfparams['B44'] =      -519 - 158j
+cfparams['B62'] =       182 + 87j
+cfparams['B64'] =      -370 + 162j
+cfparams['B66'] =        86 + 233j
+cfparams['M2'] =          2.56
+cfparams['M4'] =          1.74
+cfparams['P4'] =        555.00
+cfparams['P6'] =        370.00
 
 # # Number of levels and states
-# numLSJ = len(LSJlevels)
-# numLSJmJ = len(LSJmJstates)
+numLSJ = Er.numlevels()
+numLSJmJ = Er.numstates()
 # # Variable multiplier for the crystal field strength
 # # this will be the x-axis of the graph we will draw
 # cfstrvals = np.linspace(0, 1.5, 15)
 
 
-# # Make a free-ion Hamiltonian
-# H0 = np.zeros([numLSJmJ, numLSJmJ])
-# for k in cfparams.keys():
-#     if k in full_freeion_mat:
-#         print("Adding free ion parameter %s\n" % (k))
-#         H0 = H0+cfparams[k]*full_freeion_mat[k]
+# Make a free-ion Hamiltonian
+H0 = np.zeros([numLSJmJ, numLSJmJ])
+for k in cfparams.keys():
+    if k in Er.FreeIonMatrix:
+        print("Adding free ion parameter \'%s\' = %g" % (k, cfparams[k]))
+        H0 = H0+cfparams[k]*Er.FreeIonMatrix[k]
 
-# # Add in the crystal field terms and diagonalise the result
-# H = H0
-# for k in [2, 4, 6]:
-#     for q in range(0, k+1):
-#         if 'B%d%d' % (k, q) in cfparams:
-#             if q == 0:
-#                 H = H+cfparams['B%d%d' % (k, q)]*Ckq[(k, q)]
-#             else:
-#                 H = H+cfparams['B%d%d' % (k, q)]*Ckq[(k, q)]
-#                 H = H+((-1)**q)*np.conj(cfparams['B%d%d' % (k, q)]) \
-#                     * Ckq[(k, -q)]
-# (evals, evects) = np.linalg.eig(H)
-# E0 = np.min(evals)
-# calc_nrg_levels = np.sort(evals-E0)
+# Add in the crystal field terms and diagonalise the result
+H = H0
+for k in [2, 4, 6]:
+    for q in range(0, k+1):
+        if 'B%d%d' % (k, q) in cfparams:
+            if q == 0:
+                H = H+cfparams['B%d%d' % (k, q)]*Er.Cmatrix(k, q)
+            else:
+                Bkq = cfparams['B%d%d' % (k, q)]
+                Bkmq = (-1)**q*np.conj(Bkq)
+                Ckq = Er.Cmatrix(k, q)
+                Ckmq = Er.Cmatrix(k, -q)
+                #See page 44, eq 3.1 of the crystal field handbook
+                H = H + Bkq*Ckq + Bkmq*Ckmq
 
+(evals, evects) = np.linalg.eig(H)
+E0 = np.min(evals)
+calc_nrg_levels = np.sort(evals-E0)
+calc_nrg_levels = calc_nrg_levels[::2]  # ignore every second element   
+
+print(calc_nrg_levels)
 
 # # Make a matrix for the energy levels vs crystal field strength
 # # (this is what we will plot)
