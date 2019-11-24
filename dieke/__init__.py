@@ -21,8 +21,8 @@ __email__ = 'jevon.longdell@gmail.com'
 __version__ = '0.4.0'
 
 
-def emptymatrix(n,dtype='double'):
-    return lil_matrix((n,n),dtype=dtype)
+def emptymatrix(n, dtype='double'):
+    return lil_matrix((n, n), dtype=dtype)
 #    return np.mat(np.zeros((n,n)))
 
 
@@ -30,12 +30,12 @@ def emptymatrix(n,dtype='double'):
 class RareEarthIon:
     def __init__(self, nf):
         (self.LStermLabels,
-           self.Uk,
-           self.LSJlevelLabels,
-           self.freeion_mat,
-           self.LSJmJstateLabels,
-           self.FreeIonMatrix,
-           self.Ckq) = makeMatricies(nf)
+         self.Uk,
+         self.LSJlevelLabels,
+         self.freeion_mat,
+         self.LSJmJstateLabels,
+         self.FreeIonMatrix,
+         self.Ckq) = makeMatricies(nf)
         self.N = factorial(14)//(factorial(nf)*factorial(14-nf))
         self.N = int(round(self.N))
         self.nf = nf
@@ -45,7 +45,6 @@ class RareEarthIon:
         J = emptymatrix(self.N, 'double')
         mJ = emptymatrix(self.N, 'double')
 
-        
         # The index given in the crosswhite data files
         # to distinguish different terms that have the same
         # L and S
