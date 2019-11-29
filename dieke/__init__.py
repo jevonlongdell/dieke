@@ -34,6 +34,7 @@ class RareEarthIon:
     def __init__(self, nf,I=0):
         (self.LStermLabels,
            self.Uk,
+           self.V1k,
            self.LSJlevelLabels,
            self.freeion_mat,
            self.LSJmJstateLabels,
@@ -301,7 +302,7 @@ def makeMatricies(nf):
     (LSJmJstates, full_freeion_mat) = makeFullFreeIonOperators(
                                               nf, LSJlevels, freeion_mat)
     Ckq = makeCkq(LSJmJstates, LSJlevels, LSterms, Uk, nf)
-    return (LSterms, Uk, LSJlevels, freeion_mat, LSJmJstates,
+    return (LSterms, Uk,V, LSJlevels, freeion_mat, LSJmJstates,
             full_freeion_mat, Ckq)
 
 
