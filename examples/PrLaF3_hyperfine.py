@@ -36,7 +36,7 @@ numLSJ = Pr.numlevels()
 numstates = Pr.numstates()
 
 
-cfparams['HF'] = 0.005466 
+cfparams['HF'] = 0.005466
 
 
 # Variable multiplier for the crystal field strength

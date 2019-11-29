@@ -1,10 +1,10 @@
 import numpy as np
-## Alternatives for wigner symbols
-#from .wigner import Wigner6j, Wigner3j
+# Alternatives for wigner symbols
+# from .wigner import Wigner6j, Wigner3j
 from sympy.physics.wigner import wigner_3j
 from sympy.physics.wigner import wigner_6j
-from sympy.physics.wigner import wigner_9j 
-#rom .njsymbols import wigner_3j, wigner_6j, wigner_9j
+from sympy.physics.wigner import wigner_9j
+# from .njsymbols import wigner_3j, wigner_6j, wigner_9j
 from scipy.special import factorial
 from fractions import Fraction
 from .sljcalc import reducedL, reducedS, istriad
@@ -23,8 +23,8 @@ __email__ = 'jevon.longdell@gmail.com'
 __version__ = '0.4.0'
 
 
-def emptymatrix(n,dtype='double'):
-    return sparse.lil_matrix((n,n),dtype=dtype)
+def emptymatrix(n, dtype='double'):
+    return sparse.lil_matrix((n, n), dtype=dtype)
 #    return np.mat(np.zeros((n,n)))
 
 def sb(a): # square brackets
@@ -131,6 +131,7 @@ class RareEarthIon:
         self.FreeIonMatrix['Sy'] = 1j/np.sqrt(2)*(Sminus1+S1)
         self.FreeIonMatrix['Sz'] = S0
         self.FreeIonMatrix['HF'] = 0
+        self.FreeIonMatrix['Q'] = 0 
 
         # #x,y,and z components of rhat
         # self.FreeIonMatrix['Rhatz'] = self.Ckq[(1, 0)]
@@ -138,8 +139,6 @@ class RareEarthIon:
         #                                             - self.Ckq[(1, -1)])
         # self.FreeIonMatrix['Rhaty'] = 1j/np.sqrt(2)*(self.Ckq[(1, -1)]
         #                                              + self.Ckq[(1, -1)])
-
-        
         if self.I != 0:
 
             for k in self.FreeIonMatrix.keys():
@@ -180,8 +179,56 @@ class RareEarthIon:
                     cwidxp = int(np.round(self.FreeIonMatrix['CWIDX'][jj, jj]))
                     twicemIp = int(np.round(self.FreeIonMatrix['Iz'][jj, jj]))
                     if cwidx == cwidxp and twiceS == twiceSp:
-                        summ = 0
-                                                   
+                        L = twiceL/2
+                        S = twiceS/2
+                        J = twiceJ/2
+                        Lp = twiceLp/2
+                        Sp = twiceSp/2
+                        Jp = twiceJp/2
+
+                        # The hyperfine matrix is the product of a_l and  three factors
+                        # found in equation  at the bottom of page 12 of 
+                        # PHYSICAL REVIEW B 71, 174409 (2005)
+
+                        # the one in the big square brackets
+                        factor1 = 0
+                        for q in [-1, 0, 1]:
+                            jpart = (-1)**((twiceJ-twicemJ)/2)*wl.w3j(
+                                twiceJ,    2, twiceJp,
+                                -twicemJ, 2*q, twicemJp)
+                            ipart = (-1)**((twiceI-twicemI)/2)*wl.w3j(
+                                twiceI,    2, twiceIp,
+                                -twicemI, 2*q, twicemIp)
+                            factor1 = factor1 + (-1)**q*jpart*ipart
+
+                        # The reduced element of N term1
+                        factor2 = 0
+                        # factor two is going to be zero unless
+                        # all those Kronecker deltas evaltuate to one
+
+                        if ((twiceS == twiceSp) and
+                            (twiceL == twiceLp) and
+                            (cwidx == cwidxp)):  # Crosswhite indices
+                            L = twiceL/2
+                            S = twiceS/2
+                            J = twiceJ/2
+                            Lp = twiceLp/2
+                            Sp = twiceSp/2
+                            Jp = twiceJp/2
+                            factor2 = (-1)**(L+S+Jp+1) \
+                                      * np.sqrt(L*(L+1)*(2*L+1)) \
+                                      * np.sqrt((2*J+1)*(2*Jp+1)) \
+                                      * wl.w6j (
+                                          twiceJ, 2, twiceJp,
+                                          twiceL, twiceS, twiceL)
+                        factor2 = factor2 - \
+                                  np.sqrt(3) * reducedCk(3, 2, 3) \
+                                  * np.sqrt((twiceJp+1)*(twiceJ+1)) \
+                                  * wl.w9j(twiceS, twiceSp, 2,
+                                           twiceL, twiceLp, 4,
+                                           twiceJ, twiceJp, 2) \
+                                  *W121
+                        
                         phase1 =(-1)**((twiceL+twiceS+twicemJ+2*self.I+twicemI+2)/2)
                         phase2 = (-1)**((twiceJ+twicemJ+twiceL*2*self.I+twicemI)/2)
 
