@@ -140,7 +140,9 @@ class RareEarthIon:
         # self.FreeIonMatrix['Rhaty'] = 1j/np.sqrt(2)*(self.Ckq[(1, -1)]
         #                                              + self.Ckq[(1, -1)])
         if self.I != 0:
+            LStermdict
 
+            
             for k in self.FreeIonMatrix.keys():
                 self.FreeIonMatrix[k] = sparse.kron(self.FreeIonMatrix[k],
                                                     sparse.eye(2*self.I+1))
@@ -201,11 +203,11 @@ class RareEarthIon:
                                 -twicemI, 2*q, twicemIp)
                             factor1 = factor1 + (-1)**q*jpart*ipart
 
-                        # The reduced element of N term1
+                        # factor two is the reduced element of N1
                         factor2 = 0
+
                         # factor two is going to be zero unless
                         # all those Kronecker deltas evaltuate to one
-
                         if ((twiceS == twiceSp) and
                             (twiceL == twiceLp) and
                             (cwidx == cwidxp)):  # Crosswhite indices
@@ -221,39 +223,18 @@ class RareEarthIon:
                                       * wl.w6j (
                                           twiceJ, 2, twiceJp,
                                           twiceL, twiceS, twiceL)
+                        # second part of factor2
                         factor2 = factor2 - \
                                   np.sqrt(3) * reducedCk(3, 2, 3) \
                                   * np.sqrt((twiceJp+1)*(twiceJ+1)) \
                                   * wl.w9j(twiceS, twiceSp, 2,
                                            twiceL, twiceLp, 4,
                                            twiceJ, twiceJp, 2) \
-                                  *W121
+                                  * W12(gamma,S,L,gammap,Sp,Lp) # !!!!! <-------needs implementing
                         
-                        phase1 =(-1)**((twiceL+twiceS+twicemJ+2*self.I+twicemI+2)/2)
-                        phase2 = (-1)**((twiceJ+twicemJ+twiceL*2*self.I+twicemI)/2)
-
-                        prefactor = np.sqrt(sb(twiceJ/2)*sb(twiceJp/2)*sb(self.I)*(self.I+1))
-                        term1 = phase1 * np.sqrt(sb(twiceL/2)*(twiceL/2+1)) * \
-                                wl.w6j(twiceL, twiceLp,2,
-                                       twiceJp, twiceJ, twiceS
-                                       )
-                        term2 = phase2 * np.sqrt(30*sb(twiceL/2)*sb(twiceLp/2)*sb(twiceS/2)) * \
-                                wl.w3j(twiceLp, 4, twiceL, 0, 0, 0) * \
-                                wl.w9j(twiceS, twiceSp, 2,
-                                       twiceL, twiceLp, 4,
-                                       twiceJ, twiceJp, 2
-                                )
-                        postfactor = 0
-                        for q in [-1, 0, 1]:
-                            postfactor += (-1)**q * \
-                                  wl.w3j(
-                                      twiceJ,  2, twiceJp,
-                                      -twicemJ, 2*q, twicemJp
-                                  ) * \
-                                  wl.w3j(
-                                      2*self.I,  2, 2*self.I,
-                                      -twicemI, 2*q, twicemIp
-                                  )
+                        # factor three <I||I(1)||I>
+                        factor3 = sqrt(self.I*(self.I+1)*(2*self.I+1))
+                        
                         self.FreeIonMatrix['HF'][ii, jj] = \
                             prefactor*(term1-term2)*postfactor
 
@@ -345,11 +326,11 @@ def makeMatricies(nf):
     -------
     See ``crystal_field_example.py`` in the examples folder
     """
-    (LSJlevels, freeion_mat, LSterms, Uk, V) = read_crosswhite(nf)
+    (LSJlevels, freeion_mat, LSterms, Uk, V1k) = read_crosswhite(nf)
     (LSJmJstates, full_freeion_mat) = makeFullFreeIonOperators(
                                               nf, LSJlevels, freeion_mat)
     Ckq = makeCkq(LSJmJstates, LSJlevels, LSterms, Uk, nf)
-    return (LSterms, Uk,V, LSJlevels, freeion_mat, LSJmJstates,
+    return (LSterms, Uk, V1k, LSJlevels, freeion_mat, LSJmJstates,
             full_freeion_mat, Ckq)
 
 
@@ -503,6 +484,33 @@ def makesinglyreducedUk(doublyReducedUk, LSterms, LSJlevels):
                     doublyReducedUk[k_idx, LStermdict[iterm],
                                     LStermdict[jterm]]
     return singlyreducedUk
+
+
+def makesinglyreducedV1k(doublyReducedV1k,LSterms,LSJlevels):
+    LStermdict = {}
+    for k in range(len(LSterms)):
+        LStermdict[LSterms[k]] = k
+    kvals = [2, 4, 6]  # values of k for which we need to worry about
+    singlyreducedV1k = np.zeros([3, len(LSJlevels), len(LSJlevels)])
+    for i in range(len(LSJlevels)):
+        L = LfromLevelLabel(LSJlevels[i])
+        S = SfromLevelLabel(LSJlevels[i])
+        J = JfromLevelLabel(LSJlevels[i])
+        iterm = termFromLevelLabel(LSJlevels[i])
+        for j in range(len(LSJlevels)):
+            Lprime = LfromLevelLabel(LSJlevels[j])
+            # Sprime = SfromLevelLabel(LSJlevels[j])
+            Jprime = JfromLevelLabel(LSJlevels[j])
+            jterm = termFromLevelLabel(LSJlevels[j])
+            for k_idx in range(len(kvals)):
+                k = kvals[k_idx]
+                # Equation1.37 from Guokui and Liu
+                singlyreducedV1k[k_idx, i, j] = \
+                    (-1)**(S+Lprime+J+k)*np.sqrt((2*J+1)*(2*Jprime+1)) * \
+                    wigner_6j(J, Jprime, k, Lprime, L, S) * \
+                    doublyReducedV1k[k_idx, LStermdict[iterm],
+                                    LStermdict[jterm]]
+    return singlyreducedV1k    
 
 
 # Caching results of these things to make stuff faster
