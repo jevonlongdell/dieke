@@ -89,7 +89,7 @@ I will illustrate with f2nm.dat (Pr)
   Block contains a whole bunch of lines with 8 numbers the first two are the state index (i,j) both i and j are in the range [1,numLSstates]
   which refer to which LS state the matrix elements are between
 
-  Next the three numbers which are matrix elements of the Uk and the three elements which are the matrix elements of the V
+  Next the three numbers which are matrix elements of the Uk (U(2),U(4),U(6)) and the three elements which are the matrix elements of the V1k (V(12),V(14),V16). Specifically the first column is U(2)
 
 
 
