@@ -267,3 +267,65 @@ def test_ErYSO():
 
 
     
+def test_Nd_LaF3():
+    """
+    Tests that we give the same results as Carnall 1989 for Nd:LaF3
+    """
+
+    #energy levels from Carnall's paper
+    #actually I've change 6113 from the carnall paper to 
+    # 6313 because they obvioiusly made a typo!
+
+    carnall_levels = [5, 48, 153, 304, 513,
+                        1965, 2027, 2070, 2089, 2193, 2226,
+                        3902, 3970, 4033, 4087, 4115, 4205, 4267,
+                        5804, 5871, 5999, 6163, 6185, 6313, 6445, 6538, 
+                        11596, 11638,  
+                        ]
+    carnall_levels = np.array(carnall_levels)
+    carnall_levels = carnall_levels-np.min(carnall_levels)
+    
+    nf = 3  # 3 f-electrons means we're dealing with Nd
+    Nd = dieke.RareEarthIon(nf)
+    cfparams = dieke.readLaF3params(nf)
+    
+    # Number of levels and states
+    numLSJ = Nd.numlevels()
+    numLSJmJ = Nd.numstates()
+
+    
+
+    # Make a free-ion Hamiltonian
+    H0 = np.zeros([numLSJmJ, numLSJmJ])
+    for k in cfparams.keys():
+        if k in Nd.FreeIonMatrix:
+            H0 = H0+cfparams[k]*Nd.FreeIonMatrix[k]
+
+    # Add in the crystal field terms 
+    H = H0
+    for k in [2, 4, 6]:
+        for q in range(0, k+1):
+            if 'B%d%d' % (k, q) in cfparams:
+                if q == 0:
+                    H = H+cfparams['B%d%d' % (k, q)]*Nd.Cmatrix(k, q)
+                else:
+                    Bkq = cfparams['B%d%d' % (k, q)]
+                    Bkmq = (-1)**q*np.conj(Bkq)  # B_{k,-q}
+                    Ckq = Nd.Cmatrix(k, q)
+                    Ckmq = Nd.Cmatrix(k, -q)
+                    # See page 44, eq 3.1 of the crystal field handbook
+                    H = H + Bkq*Ckq + Bkmq*Ckmq
+
+
+
+    # Diagonalise the result
+    (evals, evects) = np.linalg.eig(H)
+    E0 = np.min(evals)
+    calc_nrg_levels = np.sort(evals-E0)
+    calc_nrg_levels = np.real(calc_nrg_levels[::2])
+
+    #import pdb; pdb.set_trace()
+    # Assert that they all agree within one wave number
+    assert(np.max(np.abs(
+        calc_nrg_levels[0:len(carnall_levels)]-carnall_levels))
+           < 2.0 )
