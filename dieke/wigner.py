@@ -1,6 +1,7 @@
 from __future__ import division
 from scipy.special import factorial
-from scipy import  floor, sqrt
+#from scipy import  floor, sqrt
+from numpy import floor, sqrt  
 from numpy import arange
 
 def Wigner3j(j1,j2,j3,m1,m2,m3):
