@@ -18,7 +18,7 @@ np.seterr(all='raise')
 
 __author__ = """Jevon Longdell"""
 __email__ = 'jevon.longdell@gmail.com'
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 
 def emptymatrix(n, dtype='double'):
