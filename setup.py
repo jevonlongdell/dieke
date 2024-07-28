@@ -20,9 +20,9 @@ setuptools.setup(
         'matplotlib',
         'sympy'
     ],
-    classifiers=(
+    classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
-    ),
+    ],
     include_package_data=True
 )

@@ -35,15 +35,17 @@ def test_LS_commutation_relations():
 
     for k in range(3):
         for j in range(3):
-            assert(norm((Lvec[k]@Svec[j]-Svec[j]@Lvec[k]).A)<eps)
+            #print(k,j)
+            #import pdb; pdb.set_trace()
+            assert(norm((Lvec[k]@Svec[j]-Svec[j]@Lvec[k]).todense())<eps)
 
-    assert(norm((Lx@Ly-Ly@Lx-1j*Lz).A)<eps)
-    assert(norm((Sx@Sy-Sy@Sx-1j*Sz).A)<eps)
-    assert(norm((Jx@Jy-Jy@Jx-1j*Jz).A)<eps)
+    assert(norm((Lx@Ly-Ly@Lx-1j*Lz).todense())<eps)
+    assert(norm((Sx@Sy-Sy@Sx-1j*Sz).todense())<eps)
+    assert(norm((Jx@Jy-Jy@Jx-1j*Jz).todense())<eps)
 
-    assert(norm((Lx@Lx + Ly@Ly + Lz@ Lz - L@(L+np.eye(Re.numstates()))).A) < eps)
-    assert(norm((Sx@Sx + Sy@Sy + Sz@ Sz - S@(S+np.eye(Re.numstates()))).A) < eps)
-    assert(norm((Jx@Jx + Jy@Jy + Jz@ Jz - J@(J+np.eye(Re.numstates()))).A) < eps)
+    assert(norm((Lx@Lx + Ly@Ly + Lz@ Lz - L@(L+np.eye(Re.numstates())))) < eps)
+    assert(norm((Sx@Sx + Sy@Sy + Sz@ Sz - S@(S+np.eye(Re.numstates())))) < eps)
+    assert(norm((Jx@Jx + Jy@Jy + Jz@ Jz - J@(J+np.eye(Re.numstates())))) < eps)
 
 
 
