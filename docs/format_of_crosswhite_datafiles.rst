@@ -1,8 +1,10 @@
 ==============================
-Format of Crosswhite Data Files
+Crosswhite Data Format
 ==============================
 
 Dieke gets many of it's matrix elements from Hannah Crosswhite's data files see "data" directory for the data files as well as some ancient Fortran code used to read them.
+The following might be useful if anyone wants to read from them directly.
+
 
 Reduced Tensor Operators
 ------------------------

@@ -16,12 +16,11 @@ Crystal field calculations for the Rare Earths
 
 * Free software: GNU General Public License v3
 * Documentation: https://dieke.readthedocs.io.
-* Requires Python 3.5 or higher
 
 Features
 --------
 
-* Reads Crosswhite Fortran datafiles into python code.
+* An easy to install way to get matrix elements for crystal field calculations
+for the rare earths. 
 
-* Still work in progress. Treat results with caution.
-
+* Based on the Hannah Crosswhite data files.
