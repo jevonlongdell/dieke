@@ -26,8 +26,19 @@ def emptymatrix(n, dtype='double'):
 #    return np.mat(np.zeros((n,n)))
 
 
-
+ 
 class RareEarthIon:
+    """A class to hold matrix represenatations of the operators particular
+    Rare Earth ion. Calculations will generally use the "FreeIonMatrix" for operators
+    relevant to the free ion and the Cmatrix function for crystal field operators.
+
+
+    Parameters
+    ----------
+    nf : int
+        The number of f electrons (e.g. set nf = 3 for Nd3+)
+
+    """
     def __init__(self, nf):
         (self.LStermLabels,
          self.Uk,
@@ -126,6 +137,16 @@ class RareEarthIon:
 
 
     def Cmatrix(self, k, q):
+        """Returns the standard electrostaic perturbation operator
+           C_kq
+
+        Args:
+            k (int)
+            q (int) 
+
+        Returns:
+            C_kq operator
+        """
         return self.Ckq[(k, q)]
 
     def numlevels(self):
@@ -167,6 +188,8 @@ class IsotropicRareEarthIon:
 def makeMatricies(nf):
     """ 
     Returns set of matricies from which crystal field Hamiltonians can be made.
+
+    This isn't intended to be called by user code use `dieke.RareEarthIon(nf)` instead.
 
     Parameters
     ----------
@@ -219,6 +242,15 @@ def makeMatricies(nf):
 
 
 def readLaF3params(nf):
+    """Reads crystal field and free ion parameters for a given rareearth. From the bundled `carnall89params.xls` spreadsheet
+    This spreadsheet contains parameters from the paper below for many of the rare earths, people who want to populate it further are encoraged to send in updated versions
+
+    Args:
+        nf (int): number of f electrons, eg n=2 corrseponds to Pr3+.
+
+    Returns:
+        A dictionary of crystal field paprameter names -> parameter values.
+    """
     # print(__file__)
     pd = pandas.read_excel(os.path.join(__path__[0], 'carnall89params.xls'),
                            skiprows=2).set_index('param')

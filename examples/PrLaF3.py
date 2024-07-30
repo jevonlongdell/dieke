@@ -9,8 +9,29 @@ import dieke
 nf = 2  # 2 f-electrons means we're dealing with Pr
 
 # This object contains the matricies we need for the
-# calculations all in the dictionary "FreeIonMatrix"
+# calculations all in the dictionaries "FreeIonMatrix"
+# and "Cmatrix"
+print('Populating matricies')
 Pr = dieke.RareEarthIon(nf)
+
+
+# Creating the rare earth ion object can be timeconsuming,
+# especially as the number of f-electrons gets closer to 14/2=7.
+# One practical way to get around this is using code like the following
+# which caches the matricies.
+#
+# import gzip
+# import pickle
+# try:
+#     f = gzip.open('pr_matricies.dat.gz', 'rb')
+#     print("Loading matricies")
+#     Pr = pickle.load(f)
+# except FileNotFoundError:
+#     print("Making matricies")
+#     Pr = dieke.RareEarthIon(nf)
+#     pickle.dump(Er, gzip.open('pr_matricies.dat.gz', 'wb'))
+
+
 
 
 # Read in a a set of crystal field parameters for Pr:LaF3
