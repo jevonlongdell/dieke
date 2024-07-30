@@ -1,1 +1,7 @@
 numpy
+xlrd
+pandas
+scipy
+matplotlib
+sympy
+
