@@ -11,16 +11,12 @@ Dieke
         :target: https://dieke.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-Crystal field calculations for the Rare Earths
+Crystal field calculations for the rare earths with python
 
+* An easy to install with `pip`
 
 * Free software: GNU General Public License v3
+
 * Documentation: https://dieke.readthedocs.io.
-
-Features
---------
-
-* An easy to install way to get matrix elements for crystal field calculations
-for the rare earths. 
 
 * Based on the Hannah Crosswhite data files.
