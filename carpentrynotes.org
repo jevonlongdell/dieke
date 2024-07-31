@@ -18,6 +18,17 @@ twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 twine upload dist/*
 
 
+* Tests
+tox prepares virtual environments and then uses pytest to run the Tests
+travis runs tox tests when pushing to github. See tox.ini as well .travis.yml
+
+* Documentation
+Documentation uses sphinx, use the Makefile in the doc directory to make documentation locallly. 
+readthedocs.io refreshes automatically when you push to github.
+
+
+
+
 
 
 
