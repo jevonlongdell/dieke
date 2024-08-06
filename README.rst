@@ -13,7 +13,7 @@ Dieke
 
 Crystal field calculations for the rare earths with python
 
-* Easy to install with `pip`. Easy to use.
+* Easy to install with `pip`. Easy to use. See an `example calculation. <http://https://github.com/jevonlongdell/dieke/blob/master/examples/PrLaF3.py>`_
 
 * Free software: GNU General Public License v3
 
