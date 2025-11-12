@@ -446,67 +446,56 @@ def makeCkq(LSJmJstates, LSJlevels, LSterms, doublyReducedUk, nf):
         leveldict[LSJlevels[k]] = k
     # print("Making singly reduced Uk matricies")
     singlyreducedUk = makesinglyreducedUk(doublyReducedUk, LSterms, LSJlevels)
+    nonzero = {k: np.argwhere(np.abs(singlyreducedUk[k // 2 - 1]) > 1e-10) for k in (2, 4, 6)}
     multiplet_size = []
     multiplet_start = []
 
     count = 0
     for lvl in LSJlevels:
-        twiceJ = int(round(JfromLevelLabel(lvl)*2))
-        twicemJvals = range(-twiceJ, twiceJ+1, 2)
+        twiceJ = int(round(JfromLevelLabel(lvl) * 2))
+        twicemJvals = range(-twiceJ, twiceJ + 1, 2)
         # the +1 in line above is only to make sure mJ
         # goes between -J and J inclusive
-        assert(len(twicemJvals) == twiceJ+1)
+        assert (len(twicemJvals) == twiceJ + 1)
         multiplet_start.append(count)
-        multiplet_size.append(twiceJ+1)
+        multiplet_size.append(twiceJ + 1)
         for twicemJ in twicemJvals:
             if (twiceJ % 2) == 0:
-                assert(LSJmJstates[count] == '%s %3d  ' % (lvl, twicemJ//2))
+                assert (LSJmJstates[count] == '%s %3d  ' % (lvl, twicemJ // 2))
             else:
-                assert(LSJmJstates[count] == '%s %3d/2' % (lvl, twicemJ))
-            count = count+1
-        
+                assert (LSJmJstates[count] == '%s %3d/2' % (lvl, twicemJ))
+            count = count + 1
+
     Ckq = {}
     for k in [2, 4, 6]:
         lCkl = reducedCk(3, k, 3)
-        for q in range(-k, k+1):
+        for q in range(-k, k + 1):
             # print("Making C%d%d matrix." % (k, q))
-#            Ckq[(k, q)]
-#            cmatrix = np.matrix(np.zeros([numstates, numstates],dtype='complex128'))
-            cmatrix = emptymatrix(numstates,dtype='complex')
-            for i in range(len(LSJlevels)):
-                istart = multiplet_start[i]
-                isize = multiplet_size[i]
-                # istop = istart+isize # commented this out because never used?
-#                rowcount_test = rowcount_test + isize
-                for j in range(len(LSJlevels)):
-                    if abs(singlyreducedUk[k//2-1, i, j]) < 1e-10:
+            #            Ckq[(k, q)]
+            #            cmatrix = np.matrix(np.zeros([numstates, numstates],dtype='complex128'))
+            cmatrix = emptymatrix(numstates, dtype='complex')
+            for i, j in nonzero[k]:
+                istart, isize = multiplet_start[i], multiplet_size[i]
+                jstart, jsize = multiplet_start[j], multiplet_size[j]
+                twiceJ = isize - 1
+                twiceJp = jsize - 1
+                for ii in range(isize):
+                    twicemJ = -twiceJ + 2 * ii
+                    twicemJp = twicemJ - 2 * q  # selection rule
+                    if (twicemJp < -twiceJp) or (twicemJp > twiceJp):
                         continue
-                    jstart = multiplet_start[j]
-                    jsize = multiplet_size[j]
-                    # jstop = jstart+jsize #commented out because never used?
-                    twiceJ = isize-1
-                    J = twiceJ/2.0
-                    twiceJprime = jsize-1
-                    # Jprime = twiceJprime/2.0 #never used?
-                    for ii in range(isize):  # ii = inner i
-                        twicemJ = -twiceJ+2*ii
-                        mJ = -J + ii
-                        for ij in range(jsize):
-                            twicemJprime = -twiceJprime + 2*ij
-                            # mJprime=-Jprime+ij#commented because never used?
-                            threejtemp = wignerlookup.w3j(twiceJ, 2*k,
-                                                          twiceJprime,
-                                                          -twicemJ, 2*q,
-                                                          twicemJprime)
-                            if(threejtemp != 0):
-                                cmatrix[istart+ii, jstart+ij] = \
-                                    (-1)**(J-mJ)*threejtemp * \
-                                    singlyreducedUk[k//2-1, i, j]*lCkl
+                    if ((twicemJp + twiceJp) % 2) != 0:  # parity guard (step of 2)
+                        continue
+                    ij = (twicemJp + twiceJp) // 2
+                    threejtemp = wignerlookup.w3j(twiceJ, 2 * k, twiceJp, -twicemJ, 2 * q, twicemJp)
+                    if threejtemp != 0.0:
+                        cmatrix[istart + ii, jstart + ij] = (-1) ** ((isize - 1) / 2 - (-twiceJ + 2 * ii) / 2) * \
+                                                            threejtemp * singlyreducedUk[k // 2 - 1, i, j] * lCkl
             if nf > 7:
                 cmatrix = -cmatrix
-        
+
             Ckq[(k, q)] = cmatrix
-#            print("ROWCOUNT TEST = %s" %rowcount_test)
+    #            print("ROWCOUNT TEST = %s" %rowcount_test)
     return Ckq
 
 
@@ -542,15 +531,15 @@ def makeFullFreeIonOperators(nf, LSJlevels, fi_mat):
     for i in range(len(LSJlevels)):
         istart = multiplet_start[i]
         isize = multiplet_size[i]
-        istop = istart+isize
+        # istop = istart+isize
         for j in range(len(LSJlevels)):
             if isize != multiplet_size[j]:
                 continue
             jstart = multiplet_start[j]
-            jstop = jstart+isize
+            # jstop = jstart+isize
             for key in full_fi_mat.keys():
-                full_fi_mat[key][istart:istop, jstart:jstop] = \
-                                np.eye(isize)*fi_mat[key][i, j]
+                for d in range(isize):
+                    full_fi_mat[key][istart + d, jstart + d] = fi_mat[key][i, j]
     return (LSJmJstates, full_fi_mat)
 
 
@@ -774,7 +763,7 @@ def read_crosswhite(nf):
         # fill in the other triangle
     for key in fi_mat.keys():
         olddiag = fi_mat[key].diagonal()
-        fi_mat[key] = fi_mat[key]+np.transpose(fi_mat[key])
+        fi_mat[key] = (fi_mat[key]+fi_mat[key].T).tolil()
         fi_mat[key].setdiag(olddiag)
     # Why 1000 indeed ...
     fi_mat['ALPHA'] = 1000*fi_mat['.01ALPH']
